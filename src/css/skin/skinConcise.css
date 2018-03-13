@@ -1,0 +1,258 @@
+/*
+Icon classes can be used entirely standalone. They are named after their original file names.
+
+Example usage in HTML:
+
+`display: block` sprite:
+<div class="icon-home"></div>
+
+To change `display` (e.g. `display: inline-block;`), we suggest using a common CSS class:
+
+// CSS
+.icon {
+  display: inline-block;
+}
+
+// HTML
+<i class="icon icon-home"></i>
+*/
+.icon-Sound-BG {
+  background-image: url(skinConcise.png);
+  background-position: -183px -87px;
+  width: 6px;
+  height: 80px;
+}
+.icon-Sound-Size {
+  background-image: url(skinConcise.png);
+  background-position: -194px -87px;
+  width: 6px;
+  height: 80px;
+}
+.icon-barrageBg {
+  background-image: url(skinConcise.png);
+  background-position: -125px -124px;
+  width: 44px;
+  height: 24px;
+}
+.icon-barrage_back {
+  background-image: url(skinConcise.png);
+  background-position: 0px -176px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_close {
+  background-image: url(skinConcise.png);
+  background-position: -66px -153px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_close_back {
+  background-image: url(skinConcise.png);
+  background-position: -82px -176px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_close_face {
+  background-image: url(skinConcise.png);
+  background-position: -107px -153px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_open_back {
+  background-image: url(skinConcise.png);
+  background-position: -136px -68px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_open_face {
+  background-image: url(skinConcise.png);
+  background-position: -41px -176px;
+  width: 36px;
+  height: 18px;
+}
+.icon-barrage_set_across {
+  background-image: url(skinConcise.png);
+  background-position: -169px -176px;
+  width: 18px;
+  height: 18px;
+}
+.icon-barrage_set_default {
+  background-image: url(skinConcise.png);
+  background-position: -192px -176px;
+  width: 18px;
+  height: 18px;
+}
+.icon-light_close_across {
+  background-image: url(skinConcise.png);
+  background-position: -216px -29px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_close_default {
+  background-image: url(skinConcise.png);
+  background-position: 0px -124px;
+  width: 28px;
+  height: 47px;
+}
+.icon-light_open_across {
+  background-image: url(skinConcise.png);
+  background-position: -216px -58px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_open_default {
+  background-image: url(skinConcise.png);
+  background-position: -33px -124px;
+  width: 28px;
+  height: 47px;
+}
+.icon-list_back_left {
+  background-image: url(skinConcise.png);
+  background-position: -92px 0px;
+  width: 86px;
+  height: 63px;
+}
+.icon-list_back_right {
+  background-image: url(skinConcise.png);
+  background-position: 0px 0px;
+  width: 87px;
+  height: 63px;
+}
+.icon-pause_across {
+  background-image: url(skinConcise.png);
+  background-position: 0px -199px;
+  width: 18px;
+  height: 18px;
+}
+.icon-pause_default {
+  background-image: url(skinConcise.png);
+  background-position: -148px -153px;
+  width: 18px;
+  height: 18px;
+}
+.icon-play_across {
+  background-image: url(skinConcise.png);
+  background-position: -123px -176px;
+  width: 18px;
+  height: 18px;
+}
+.icon-play_default {
+  background-image: url(skinConcise.png);
+  background-position: -92px -199px;
+  width: 18px;
+  height: 18px;
+}
+.icon-play_default_bg {
+  background-image: url(skinConcise.png);
+  background-position: -73px -68px;
+  width: 58px;
+  height: 40px;
+}
+.icon-progressBack {
+  background-image: url(skinConcise.png);
+  background-position: -73px -113px;
+  width: 33px;
+  height: 6px;
+}
+.icon-progressHandle {
+  background-image: url(skinConcise.png);
+  background-position: -157px -91px;
+  width: 16px;
+  height: 16px;
+}
+.icon-progressHandleFace {
+  background-image: url(skinConcise.png);
+  background-position: -115px -199px;
+  width: 16px;
+  height: 16px;
+}
+.icon-rightPanelBack {
+  background-image: url(skinConcise.png);
+  background-position: 0px -68px;
+  width: 68px;
+  height: 51px;
+}
+.icon-screen_big_across {
+  background-image: url(skinConcise.png);
+  background-position: -216px -87px;
+  width: 18px;
+  height: 18px;
+}
+.icon-screen_big_default {
+  background-image: url(skinConcise.png);
+  background-position: -216px -110px;
+  width: 18px;
+  height: 18px;
+}
+.icon-screen_small_across {
+  background-image: url(skinConcise.png);
+  background-position: -216px -133px;
+  width: 18px;
+  height: 18px;
+}
+.icon-screen_small_default {
+  background-image: url(skinConcise.png);
+  background-position: -216px -156px;
+  width: 18px;
+  height: 18px;
+}
+.icon-send_back {
+  background-image: url(skinConcise.png);
+  background-position: -66px -124px;
+  width: 54px;
+  height: 24px;
+}
+.icon-share_across {
+  background-image: url(skinConcise.png);
+  background-position: -216px 0px;
+  width: 24px;
+  height: 24px;
+}
+.icon-share_default {
+  background-image: url(skinConcise.png);
+  background-position: -183px 0px;
+  width: 28px;
+  height: 41px;
+}
+.icon-video_1_contrl_bg {
+  background-image: url(skinConcise.png);
+  background-position: -183px -46px;
+  width: 22px;
+  height: 36px;
+}
+.icon-vioce_close_across {
+  background-image: url(skinConcise.png);
+  background-position: -23px -199px;
+  width: 18px;
+  height: 18px;
+}
+.icon-vioce_close_default {
+  background-image: url(skinConcise.png);
+  background-position: -46px -199px;
+  width: 18px;
+  height: 18px;
+}
+.icon-vioce_open_across {
+  background-image: url(skinConcise.png);
+  background-position: -69px -199px;
+  width: 18px;
+  height: 18px;
+}
+.icon-vioce_open_default {
+  background-image: url(skinConcise.png);
+  background-position: -146px -176px;
+  width: 18px;
+  height: 18px;
+}
+.icon-volHandle {
+  background-image: url(skinConcise.png);
+  background-position: -136px -199px;
+  width: 16px;
+  height: 16px;
+}
+.icon-volHandleBar {
+  background-image: url(skinConcise.png);
+  background-position: -136px -91px;
+  width: 16px;
+  height: 16px;
+}

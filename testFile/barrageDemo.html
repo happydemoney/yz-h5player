@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>barrage demo</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        .barrage-wrap {
+            position: relative;
+            width: 1024px;
+            height: 576px;
+            background-color: #333333;
+            margin: 50px auto 0 auto;
+        }
+
+        .barrage-item {
+            position: absolute;
+            user-select: none;
+            pointer-events: none;
+            display: inline-block;
+            white-space: pre;
+            top: auto;
+            left: 0;
+            visibility: hidden;
+
+            line-height: 1.125;
+        }
+
+        .animation_barrage {
+            animation: barrage 5s linear 0s 1;
+            /* Firefox */
+            -moz-animation: barrage 5s linear 0s 1;
+            /* Safari 和 Chrome */
+            -webkit-animation: barrage 5s linear 0s 1;
+            /* Opera */
+            -o-animation: barrage 5s linear 0s 1;
+        }
+
+        .pause .animation_barrage {
+            animation-play-state: paused;
+        }
+
+        @keyframes barrage {
+            0% {
+                visibility: visible;
+                transform: translateX(1024px);
+            }
+            100% {
+                visibility: visible;
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Firefox */
+
+        @-moz-keyframes barrage {}
+
+        /* Safari 和 Chrome */
+
+        @-webkit-keyframes barrage {}
+
+        /* Opera */
+
+        @-o-keyframes barrage {}
+
+        .barrage-input-wrap {
+            position: relative;
+            width: 1024px;
+            height: 50px;
+            line-height: 50px;
+            background-color: #999999;
+            margin: 0 auto;
+            padding-left: 15px;
+            box-sizing: border-box;
+        }
+
+        .barrage-input-wrap input {
+            padding: 5px 12px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>视频弹幕初探</h1>
+    <div class="barrage-wrap"></div>
+    <!-- 弹幕输入 -->
+    <div class="barrage-input-wrap">
+        我要吐槽：
+        <input class="barrage-input" type="text" data-info="弹幕输入" placeholder="请输入弹幕" />
+        <input class="barrage-send" type="button" data-info="发送弹幕" value="发送" />
+
+        <!-- 测试用按钮 -->
+        <input class="barrage-pp" type="button" data-info="播放/暂停" value="播放/暂停" />
+    </div>
+
+    <script type="text/javascript" charset="utf-8" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            window.time = 0; // time > 10000 停止
+            // version 对应 message 解析规则
+            var barrageData = [
+                {
+                    version: '1.0.0',
+                    message: {
+                        text: '第一条弹幕！',
+                        style: {
+                            color: '#ffffff',  // 字体颜色
+                            fontSize: '25px',   // 字体大小
+                            time: 2000    // 1 (ms) = 1/1000 (s)
+                        }
+                    }
+                },
+                {
+                    version: '1.0.0',
+                    message: {
+                        text: '第二条弹幕！测试测试',
+                        style: {
+                            color: '#ffffff',
+                            fontSize: '25px',
+                            time: 2000
+                        }
+                    }
+                },
+                {
+                    version: '1.0.0',
+                    message: {
+                        text: '第三条弹幕！测试测试，我是最长的！',
+                        style: {
+                            color: '#ffffff',
+                            fontSize: '25px',
+                            time: 2000
+                        }
+                    }
+                }
+            ];
+
+            var loopId = setInterval(function () {
+                var $barrageWrap = $('.barrage-wrap');
+                if (window.time >= 10000) {
+                    clearInterval(loopId);
+                    console.log('loop end');
+                }
+
+                addBarrageItem($barrageWrap, barrageData);
+            }, 100);
+
+            $('.barrage-input-wrap').on('click', '.barrage-send', barrageSend);
+            $('.barrage-input-wrap').on('keydown', '.barrage-input', barrageInput);
+            $('.barrage-input-wrap').on('click', '.barrage-pp', function () {
+                var $barrageWrap = $('.barrage-wrap');
+                $barrageWrap.toggleClass('pause');
+            })
+        });
+
+        /**
+         * 发送弹幕
+        */
+        function barrageSend() {
+            var $this = $(this),
+                $barrageWrap = $('.barrage-wrap'),
+                $barrageInput = $this.siblings('.barrage-input'),
+                barrageInfo = $barrageInput.val();
+
+
+            if (!barrageInfo) {
+                alert('请输入弹幕信息~');
+            } else {
+
+                var barrageItem = {
+                    version: '1.0.0',
+                    message: {
+                        text: barrageInfo,
+                        style: {
+                            color: '#ffffff',  // 字体颜色
+                            fontSize: '25px',   // 字体大小
+                            time: 0    // 1 (ms) = 1/1000 (s)
+                        }
+                    }
+                };
+
+                $barrageWrap.append(createBarrageDom(barrageItem));
+                $barrageInput.val('');
+            }
+
+        }
+
+        function barrageInput(event) {
+            // 回车
+            if (event.keyCode == 13) {
+                var $this = $(this),
+                    $barrageSend = $this.siblings('.barrage-send');
+                $barrageSend.trigger('click');
+            }
+        }
+
+        function addBarrageItem($barrageWrap, barrageData) {
+
+            for (var i = 0; i < barrageData.length; i++) {
+                if (barrageData[i].message.style.time == window.time) {
+                    var barrageItem = createBarrageDom(barrageData[i]);
+                    $barrageWrap.append(barrageItem);
+                }
+            }
+
+            window.time += 100;
+        }
+
+        function createBarrageDom(barrageData) {
+            var barrageItem = '<div class="barrage-item animation_barrage" style="' +
+                'color:' + barrageData.message.style.color + ';' +
+                'font-size:' + barrageData.message.style.fontSize + ';' +
+                'top:' + randomTop() + 'px;' +
+                '">' + barrageData.message.text + '</div>';
+            return barrageItem;
+        }
+
+        function randomTop() {
+            var randomNum = Math.random(),
+                randomTop = Math.floor(randomNum * (576 - 26));
+
+            return randomTop;
+        }
+
+    </script>
+
+</body>
+
+</html>

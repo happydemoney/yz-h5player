@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>test MD5</title>
+</head>
+
+<body>
+    <h1>MD5 test</h1>
+
+    <script type="text/javascript" charset="utf-8" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/js/lib/md5.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            /*
+            var url;
+            var m3u8Path = "http://192.168.1.22/hls/1513751254948171/59de1b7672fa8a90feaba0649daf1131/[$pat3]/index.m3u8";
+            var firstRate = "1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N";
+            m3u8Path = m3u8Path.replace('[$pat3]', firstRate);
+
+            var mdMi = hex_md5("videoWsviewOut/" + m3u8Path.substring(m3u8Path.indexOf("/hls/") + 5, m3u8Path.lastIndexOf("/")));
+            url = m3u8Path.substring(m3u8Path.indexOf("/hls/"), m3u8Path.lastIndexOf("/")) + "/" + mdMi + ".m3u8";
+
+            console.log(url);*/
+            var playId = 182055;
+            var getUrl = '&album=false&autoPlay=true&userVideoID=182050&isView=true&28.433697775814082&domain=null';
+
+            $.ajax({
+                url: 'http://192.168.1.223:8081/yzplayerAction!xmlMethod.action?str=' + playId + '_[$pat0]',
+                type: 'post',
+                dataType: 'XML',
+                async: false,
+                error: function () { },
+                success: function (xml) {
+
+                    //var urlArr = [];
+                    var definitionObj = {
+                        // 用于首次加载展示
+                        firstRate: null,
+                        // 用于切换清晰度以及页面展示
+                        allRate: []
+                    },
+                        firstIndex = 0;
+                    //var source_url = json[0].source_url;
+                    var source_url = "http://192.168.1.22";
+                    var m3u8Path = $("file", xml).text(); //m3u8地址
+                    /*播放n档位首先参数firstRate，如无此参数则从所有档位参数a(多个|分割)中取最后档位**/
+                    var trans = ''; //最终播放档位
+                    //var firstRate = $.trim(json[0].firstRate); //首选档位
+                    //var firstRate = "5"; //首选档位
+                    var firstRate = "1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N"; //首选档位
+
+                    //var defiArr = $.trim(json[0].defi).split("|");
+                    //var defiArr = "720p".split("|");
+                    var defiArr = "超清|高清|标清|1080P".split("|");
+
+                    /*
+                    if ('' != firstRate) {
+                        trans = firstRate;
+                    } else {
+                        var a = $.trim(json[0].a); //所当档位
+                        if ('' != a) {
+                            trans = a.substr((a.indexOf("|") == -1) ? 0 : a.lastIndexOf("|") + 1);//取值最后档位
+                        }
+                    }
+                    */
+                    //var a = $.trim(json[0].a); //所当档位
+                    //var a = "1_720_25_H264_1000_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N";
+                    var a = "1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N|1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N|1_240_25_H264_251_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N|1_1080_30_H264_4001_4_9_1_0_2_1_3_0_1_0_2_0_0_0_N";
+                    var aArr = a.split('|');
+
+                    if (aArr.length === 1) {
+                        var newPath = m3u8Path.replace('[$pat0]', aArr[0]);
+                        var mdMi = hex_md5("videoWsviewOut/" + newPath.substring(newPath.indexOf("/hls/") + 5, newPath.lastIndexOf("/")));
+                        var url = newPath.substring(newPath.indexOf("/hls/"), newPath.lastIndexOf("/")) + "/" + mdMi + ".m3u8";
+
+                        definitionObj.firstRate = {
+                            text: defiArr[0],
+                            url: source_url + url
+                        };
+                        definitionObj.allRate.push({
+                            text: defiArr[0],
+                            url: source_url + url
+                        });
+                    } else if (aArr.length > 1) {
+                        // allRate
+                        for (var i = 0; i < aArr.length; i++) {
+                            var newPath = m3u8Path.replace('[$pat0]', aArr[i]);
+                            var mdMi = hex_md5("videoWsviewOut/" + newPath.substring(newPath.indexOf("/hls/") + 5, newPath.lastIndexOf("/")));
+                            var url = newPath.substring(newPath.indexOf("/hls/"), newPath.lastIndexOf("/")) + "/" + mdMi + ".m3u8";
+
+                            if (aArr[i] === firstRate) {
+                                firstIndex = i;
+                            }
+
+                            definitionObj.allRate.push({
+                                text: defiArr[i],
+                                url: source_url + url
+                            });
+                        }
+
+                        // firstRate
+                        var newPath = m3u8Path.replace('[$pat0]', firstRate);
+                        var mdMi = hex_md5("videoWsviewOut/" + newPath.substring(newPath.indexOf("/hls/") + 5, newPath.lastIndexOf("/")));
+                        var url = newPath.substring(newPath.indexOf("/hls/"), newPath.lastIndexOf("/")) + "/" + mdMi + ".m3u8";
+
+                        definitionObj.firstRate = {
+                            text: defiArr[firstIndex],
+                            url: source_url + url
+                        };
+                    }
+
+                    console.log(definitionObj);
+                    /*
+                    if ('' != trans) {
+                        m3u8Path = m3u8Path.replace('[$pat0]', firstRate);
+                        //m3u8文件生成规则
+                        var mdMi = hex_md5("videoWsviewOut/" + m3u8Path.substring(m3u8Path.indexOf("/hls/") + 5, m3u8Path.lastIndexOf("/")));
+                        url = m3u8Path.substring(m3u8Path.indexOf("/hls/"), m3u8Path.lastIndexOf("/")) + "/" + mdMi + ".m3u8";
+                    }
+                    */
+                }
+            });
+
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+@charset "utf-8";
+.dataSourceInfo{
+    padding: 15px 0px; 
+    text-align: center;
+}
+.mainContainer {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.render-type{
+    padding: 10px 0;
+    text-align: center;
+}
+.intro{
+    display: inline-block;
+    width: 120px;
+    text-align: left;
+}
+.intro > strong{
+    font-weight: normal;
+    color: #666;
+    margin-left: 5px;
+}
+.video-render p{
+    text-align: center;
+}
+/* ant switch */
+.ant-switch{
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 22px;
+    min-width: 44px;
+    line-height: 20px;
+    vertical-align: middle;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background-color: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 0.36s;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.ant-switch:focus{
+    outline: 0 none;
+}
+.ant-switch:after {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 1px;
+    top: 1px;
+    border-radius: 18px;
+    background-color: #fff;
+    content: " ";
+    cursor: pointer;
+    transition: all 0.36s cubic-bezier(0.78, 0.14, 0.15, 0.86);
+}
+.ant-switch-inner{
+    color: #fff;
+    font-size: 12px;
+    margin-left: 24px;
+    margin-right: 6px;
+    display: block;
+}
+.ant-switch-checked {
+    background-color: #108ee9;
+}
+.ant-switch-checked:after {
+    left: 100%;
+    margin-left: -19px;
+}
+
+.player-control{
+    text-align: center;
+}
+.player-control input[type="text"]{
+    width: 30px;
+}

@@ -1,0 +1,93 @@
+/*
+Icon classes can be used entirely standalone. They are named after their original file names.
+
+Example usage in HTML:
+
+`display: block` sprite:
+<div class="icon-home"></div>
+
+To change `display` (e.g. `display: inline-block;`), we suggest using a common CSS class:
+
+// CSS
+.icon {
+  display: inline-block;
+}
+
+// HTML
+<i class="icon icon-home"></i>
+*/
+.icon-Sound-BG {
+  background-image: url(skinTechnology.png);
+  background-position: -25px 0px;
+  width: 20px;
+  height: 91px;
+}
+.icon-Sound-Size {
+  background-image: url(skinTechnology.png);
+  background-position: 0px 0px;
+  width: 20px;
+  height: 91px;
+}
+/*
+.icon-btn-fullScreen-hover {
+  background-image: url(skinTechnology.png);
+  background-position: -69px -143px;
+  width: 18px;
+  height: 18px;
+}
+.icon-btn-fullScreen {
+  background-image: url(skinTechnology.png);
+  background-position: -124px -96px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-fullScreen-btn-fullScreen-hover {
+  background-image: url(skinTechnology.png);
+  background-position: -138px -143px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-fullScreen-btn-fullScreen {
+  background-image: url(skinTechnology.png);
+  background-position: -173px 0px;
+  width: 18px;
+  height: 18px;
+}
+*/
+.icon-light_close_across {
+  background-image: url(skinTechnology.png);
+  background-position: -140px -51px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_close_default {
+  background-image: url(skinTechnology.png);
+  background-position: 0px -96px;
+  width: 28px;
+  height: 42px;
+}
+.icon-light_open_across {
+  background-image: url(skinTechnology.png);
+  background-position: -66px -96px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_open_default {
+  background-image: url(skinTechnology.png);
+  background-position: -140px 0px;
+  width: 28px;
+  height: 46px;
+}
+.icon-share_across {
+  background-image: url(skinTechnology.png);
+  background-position: -95px -96px;
+  width: 24px;
+  height: 24px;
+}
+.icon-share_default {
+  background-image: url(skinTechnology.png);
+  background-position: -33px -96px;
+  width: 28px;
+  height: 41px;
+}
+

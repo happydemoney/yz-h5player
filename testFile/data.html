@@ -1,0 +1,335 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+	<title>接口请求样例</title>
+
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="this is my page">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+
+</head>
+
+<body>
+	<br />
+	<br />
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/login" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								用户登录
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户名
+							</td>
+							<td width="251">
+								<input type="text" name="name" value="yunzhou1" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								密码
+							</td>
+							<td>
+								<input type="text" name="password" value="888888" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								serverip
+							</td>
+							<td>
+								<input type="text" name="serverip" value="222.76.49.74" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								serverport
+							</td>
+							<td>
+								<input type="text" name="port" value="8000" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交用户验证" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/heartbeat" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								发送心跳包
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户ID
+							</td>
+							<td width="251">
+								<input type="text" name="userid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/logout" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								登出平台
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户ID
+							</td>
+							<td width="251">
+								<input type="text" name="userid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/devicelist" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								获取设备列表
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户ID
+							</td>
+							<td width="251">
+								<input type="text" name="userid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交" id="xml" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/deviceplay" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								请求视频播放
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户ID
+							</td>
+							<td width="251">
+								<input type="text" name="userid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								deviceid
+							</td>
+							<td width="251">
+								<input type="text" name="deviceid" value="030101121000001" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								rtmpurl
+							</td>
+							<td width="251">
+								<input type="text" name="rtmpurl" value="rtmp://192.168.1.210:1935/live/b712621b99?liveID=100050009&accessCode=0d63460b"
+								/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+	<table border="0" width="100%">
+		<tr>
+			<td style="height: 20px">
+				<form action="http://192.168.1.37:8001/stopplay" method="get">
+					<table width="481" border="1">
+						<tr>
+							<td width="106" bgcolor="#9FB1E1">
+								&nbsp;
+							</td>
+							<td colspan="2" bgcolor="#9FB1E1">
+								关闭视频播放
+							</td>
+						</tr>
+						<tr>
+							<td>
+								用户ID
+							</td>
+							<td width="251">
+								<input type="text" name="userid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								playID
+							</td>
+							<td width="251">
+								<input type="text" name="playid" value="" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								&nbsp;
+							</td>
+							<td colspan="2">
+								<input type="button" value="提交" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<br />
+			</td>
+		</tr>
+		<tr>
+			<td id="content_tr"></td>
+		</tr>
+	</table>
+	<script type="text/javascript" charset="utf-8" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		$('input[type="button"]').on('click', function () {
+			var $this = $(this),
+				$thisParentForm = $this.parents('form'),
+				searchData = $thisParentForm.serialize(),
+				actionUrl = $thisParentForm.attr('action'),
+				thisID = $this.attr('id'),
+				dataType;
+
+			console.log(searchData);
+
+			if (thisID == 'xml') {
+				dataType = 'xml';
+			} else {
+				dataType = 'json';
+			}
+
+			$.ajax({
+				type: "get",
+				url: actionUrl,
+				data: searchData,
+				crossDomain: true,
+				dataType: dataType, //接受数据格式    
+				async: true,
+				success: function (json) {
+					console.log('success');
+					console.log(json);
+				},
+				error: function (json) {
+					console.log('error');
+					console.log(json);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

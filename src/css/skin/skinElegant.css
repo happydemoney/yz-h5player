@@ -1,0 +1,143 @@
+/*
+Icon classes can be used entirely standalone. They are named after their original file names.
+
+Example usage in HTML:
+
+`display: block` sprite:
+<div class="icon-home"></div>
+
+To change `display` (e.g. `display: inline-block;`), we suggest using a common CSS class:
+
+// CSS
+.icon {
+  display: inline-block;
+}
+
+// HTML
+<i class="icon icon-home"></i>
+*/
+/*
+.icon-barrage-setting-hover {
+  background-image: url(skinElegant.png);
+  background-position: -99px -46px;
+  width: 18px;
+  height: 18px;
+}
+.icon-barrage-setting {
+  background-image: url(skinElegant.png);
+  background-position: -23px -81px;
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn-fullScreen-hover {
+  background-image: url(skinElegant.png);
+  background-position: 0px -81px;
+  width: 18px;
+  height: 18px;
+}
+.icon-btn-fullScreen {
+  background-image: url(skinElegant.png);
+  background-position: -46px -81px;
+  width: 18px;
+  height: 18px;
+}
+.icon-btn-play-hover {
+  background-image: url(skinElegant.png);
+  background-position: -69px -81px;
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn-play {
+  background-image: url(skinElegant.png);
+  background-position: -92px -81px;
+  width: 18px;
+  height: 18px;
+}
+.icon-btn-volume-hover {
+  background-image: url(skinElegant.png);
+  background-position: -99px 0px;
+  width: 18px;
+  height: 18px;
+}
+.icon-btn-volume {
+  background-image: url(skinElegant.png);
+  background-position: -99px -23px;
+  width: 18px;
+  height: 18px;
+}*/
+.icon-light_close_across {
+  background-image: url(skinElegant.png);
+  background-position: -29px -52px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_close_default {
+  background-image: url(skinElegant.png);
+  background-position: 0px 0px;
+  width: 28px;
+  height: 47px;
+}
+.icon-light_open_across {
+  background-image: url(skinElegant.png);
+  background-position: 0px -52px;
+  width: 24px;
+  height: 24px;
+}
+.icon-light_open_default {
+  background-image: url(skinElegant.png);
+  background-position: -33px 0px;
+  width: 28px;
+  height: 47px;
+}
+.icon-share_across {
+  background-image: url(skinElegant.png);
+  background-position: -58px -52px;
+  width: 24px;
+  height: 24px;
+}
+.icon-share_default {
+  background-image: url(skinElegant.png);
+  background-position: -66px 0px;
+  width: 28px;
+  height: 41px;
+}
+/*
+.icon-status-fullScreen-btn-fullScreen-hover {
+  background-image: url(skinElegant.png);
+  background-position: -122px 0px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-fullScreen-btn-fullScreen {
+  background-image: url(skinElegant.png);
+  background-position: -122px -23px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-muted-btn-volume-hover {
+  background-image: url(skinElegant.png);
+  background-position: -122px -46px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-muted-btn-volume {
+  background-image: url(skinElegant.png);
+  background-position: -122px -69px;
+  width: 18px;
+  height: 18px;
+}
+.icon-status-playing-btn-play-hover {
+  background-image: url(skinElegant.png);
+  background-position: 0px -104px;
+  width: 18px;
+  height: 18px;
+}
+
+.icon-status-playing-btn-play {
+  background-image: url(skinElegant.png);
+  background-position: -23px -104px;
+  width: 18px;
+  height: 18px;
+}*/
