@@ -16,9 +16,9 @@ $skin-color-volume-fill-concise: #4b4b4b;
 // 控制条初始bottom位置
 $h5player-live-bar-bottom: -44px; // -44px;
 // 皮肤科技色系特定样式
-$h5player-live-bar-bottom-technology: -40px;
-$h5player-live-bar-bottom-technology-controls-in: 4px;
-$h5player-live-bar-bottom-technology-progress-hover: 10px;
+$h5player-live-bar-bottom-technology: -50px;
+$h5player-live-bar-bottom-technology-controls-in: 0;
+$h5player-live-bar-bottom-technology-progress-hover: 0;
 
 $wordColor-white: #fff;
 $wordColor-yellow: #fff100;
@@ -92,6 +92,11 @@ $wordColor-green:  #22ac38;
     bottom: 0;
     height: 40px;
     z-index: 99;
+
+    .h5player-skin-technology &{
+        height: 50px;
+    }
+
     .h5player-progress-bar-container{
         /* 视频进度控制条显示 */
         position: absolute;
@@ -104,10 +109,7 @@ $wordColor-green:  #22ac38;
         cursor: pointer;
 
         .h5player-skin-technology &{
-            top: 34px;
-            .h5player-status-progress-hover &{
-                top: 40px;
-            }
+            position: static;
         }
 
         .h5player-progress-list{
@@ -119,7 +121,7 @@ $wordColor-green:  #22ac38;
             background-color: rgba(166,166,166,.5);
             -webkit-transform: translateZ(0);
             transform: translateZ(0);
-            transition: all .25s cubic-bezier(0,0,.2,1);
+            transition: all 300ms ease-in;
 
             .h5player-skin-elegant &{
                 background-color: #292929;
@@ -127,6 +129,9 @@ $wordColor-green:  #22ac38;
             }
             .h5player-skin-technology &{
                 background-color: #2d2d2d;
+            }
+            .h5player-status-progress-hover & {
+                height: 10px;
             }
             .h5player-progress-load,.h5player-progress-play{
                 position: absolute;
@@ -149,15 +154,6 @@ $wordColor-green:  #22ac38;
                 opacity: 0.3;
             }
         }
-        .h5player-status-progress-hover & {
-            .h5player-progress-list{
-                height: 10px;
-            }
-            .h5player-progress-btn-scrubber{
-                display: block;
-                top: 0px;
-            }
-        }
         .h5player-progress-btn-scrubber{
             position: absolute;
             display: none;
@@ -169,6 +165,16 @@ $wordColor-green:  #22ac38;
             user-select: all;
             -ms-touch-action: none;
             touch-action: none;
+
+            .h5player-status-progress-hover &{
+                display: block;
+                top: 0px;
+            }
+            .h5player-status-progress-hover .h5player-skin-technology &{
+                top: auto;
+                bottom: 0;
+            }
+
             .h5player-progress-btn-scrubber-indicator{
                 width: 10px;
                 height: 10px;
@@ -291,7 +297,7 @@ $wordColor-green:  #22ac38;
                 background-position: -95px 0px;
                 width: 40px;
                 height: 40px;
-                margin: 0;
+                margin: 0 10px;
 
                 &:hover{
                     background-position: -95px -45px;

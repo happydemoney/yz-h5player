@@ -1259,16 +1259,10 @@ var videoPlayer = function (options, oParent) {
 
             html5ControlString_onDemond = '<div class="h5player-live-ctrl">' +
                 '<div class="h5player-live-bar">' +
-                '<div class="h5player-progress-bar-container">' +
-                '<div class="h5player-progress-list">' +
-                '<div class="h5player-progress-load"></div>' +
-                '<div class="h5player-progress-play"></div></div>' +
-                '<div class="h5player-progress-btn-scrubber">' +
-                '<div class="h5player-progress-btn-scrubber-indicator"></div></div></div>' +
+
                 '<div class="h5player-ctrl-bar clearfix">' +
                 '<span class="h5player-ctrl-bar-btn btn-play" data-info="播放/暂停"></span>' +
                 timelineTag +
-
                 '<span class="h5player-ctrl-bar-btn btn-fullScreen" data-info="全屏"></span>' +
                 vrContentString +
                 definitionString +
@@ -1278,8 +1272,14 @@ var videoPlayer = function (options, oParent) {
                 '<input id="' + volumeSlidebarId + '" class="h5player-ctrl-bar-volume-slidebar" type="range" min="0" value="100" max="100" data-info="音量调整"/>' +
                 '</div></div>' +
                 barrageString +
-
-                '</div></div></div>',
+                '</div>' +
+                '<div class="h5player-progress-bar-container">' +
+                '<div class="h5player-progress-list">' +
+                '<div class="h5player-progress-load"></div>' +
+                '<div class="h5player-progress-play"></div></div>' +
+                '<div class="h5player-progress-btn-scrubber">' +
+                '<div class="h5player-progress-btn-scrubber-indicator"></div></div></div>' +
+                '</div></div>',
 
             html5ControlString = options.playerType !== 'Flash' && options.controls && !options.isDefaultControls ? (options.isLive ? html5ControlString_live : html5ControlString_onDemond) : '',
             videoString = '<div class="videoContainer"><div class="liveContent ' + h5playerStatusClass + h5playerSkinClass + '">' +
