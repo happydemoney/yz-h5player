@@ -42294,4 +42294,3 @@
 	});
 
 })));
-export default THREE;

@@ -2,7 +2,7 @@
  * Vr 视频全景模式交互相关
  * 依赖包: three.js
  **/
-import THREE from '../lib/three.js';
+import THREE from 'three';
 
 var Vr = function (options) {
 

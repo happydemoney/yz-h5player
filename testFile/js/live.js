@@ -1,6 +1,8 @@
 var playerNew = null;
 $(function () {
+
     // stream url param
+
     setStreamUrl();
     $('.ant-switch').on('click', antSwitch);
 
@@ -65,7 +67,7 @@ function antSwitch() {
                                 videoName: 'liveTest',
                                 videoId: 999
                             },
-                            serverUrl: 'http://192.168.1.131:3001'
+                            serverUrl: 'http://192.168.1.114:3001'
                         }
                     });
                     $parentRenderItem.data('player', player);
@@ -99,7 +101,7 @@ function antSwitch() {
                                 videoName: 'videoTest',
                                 videoId: 1000
                             },
-                            serverUrl: 'http://192.168.1.131:3000'
+                            serverUrl: 'http://192.168.1.114:3000'
                         },
                         skinSetting: {
                             skinName: 'technology', // 优雅(elegant)、科技(technology)、简洁(concise)

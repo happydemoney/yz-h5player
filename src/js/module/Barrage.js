@@ -2,7 +2,7 @@
  * Barrage 弹幕相关操作 
  * 依赖包: socket.io.js
  **/
-import io from '../lib/socket.io.js';
+import io from 'io';
 
 var Barrage = function (isLive) {
     this.isLive = isLive;
@@ -16,6 +16,7 @@ Barrage.prototype = {
     connectServer: function (serverUrl, name, id) {
         var thisBarrage = this;
         thisBarrage.socket = io(serverUrl);
+        //thisBarrage.socket = new io(serverUrl);
         thisBarrage.socket.on('connect', function () {
             thisBarrage.mainFunc(name, id);   // 设置建联以后返回给播放器去主动获取id
         });

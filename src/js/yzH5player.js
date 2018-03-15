@@ -4,14 +4,20 @@
  *  @license MIT licensed;
  *  @author: happydemoney(674425534@qq.com);
  */
-import flvjs from './lib/flv.js';
-import Hls from './lib/hls.js';
-import swfobject from './lib/swfobject.js';
-import QRCode from './lib/qrcode.js';
-import _ from './lib/common.js';
-import Vr from './module/Vr.js';
-import Barrage from './module/Barrage.js';
-import $ from './lib/jquery.js';
+// three library
+import $ from 'jquery';
+import flvjs from 'flvjs';
+import Hls from 'hls';
+import QRCode from 'qrcode';
+
+// // es6 module
+import swfobject from './module/swfobject.js';
+import _ from './lib/common.js';    // 类似underscore功能函数
+import Vr from './module/Vr.js';    // 全景模式相关
+import Barrage from './module/Barrage.js';  // 弹幕交互相关
+
+// scss
+import '../css/videoPlayer.scss';
 
 'use strict';
 var $window = $(window);
@@ -142,7 +148,7 @@ var videoPlayer = function (options, oParent) {
         // VR相关设置
         vrSetting: {
             vrSwitch: false, // vr开关 - 默认关闭
-            /*0.普通视频 1.3D左右 2.3D上下 3.半景前视 4.半景3D左右 5.半景3D上下 6.全景视频 7.全景3D左右 8.全景3D上下  9.鱼眼 10.小行星 -- 待实现*/
+            //0.普通视频 1.3D左右 2.3D上下 3.半景前视 4.半景3D左右 5.半景3D上下 6.全景视频 7.全景3D左右 8.全景3D上下  9.鱼眼 10.小行星 -- 待实现
             vrControl: true, // vrControl切换条是否展示
             vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
         },
@@ -197,9 +203,9 @@ var videoPlayer = function (options, oParent) {
         }
     }, options);
 
-    /**
-     * 自定义html5播放控制器相关 - 事件处理
-     */
+
+    // 自定义html5播放控制器相关 - 事件处理
+
     var h5player = {
         // 全屏状态
         fullscreenStatus: false,
@@ -295,7 +301,6 @@ var videoPlayer = function (options, oParent) {
         },
         // 当浏览器已加载音频/视频的元数据时
         onloadedmetadata: function () {
-            showLog('onloadedmetadata');
             if (reload_currentTime > 0) {
                 options.player_source.currentTime = reload_currentTime;
                 reload_currentTime = 0;
@@ -303,7 +308,6 @@ var videoPlayer = function (options, oParent) {
         },
         // 当浏览器已加载音频/视频的当前帧时
         onloadeddata: function () {
-            showLog('onloadeddata');
             options.player_source.oncanplay = h5player.oncanplay;
             // 直播状态不进行之后事件绑定
             if (options.isLive) {
@@ -424,9 +428,8 @@ var videoPlayer = function (options, oParent) {
 
     // 初始化播放器
     initPlayer();
-    /**
-     * 广告播放器相关
-     */
+
+    // 广告播放器相关
     if (options.adsSetting.adsActive) {
         var adsPlayer = {
             status: 'beginning', // beginning | ending
@@ -447,7 +450,6 @@ var videoPlayer = function (options, oParent) {
                     if (adsPlayer.totalSeconds > 0) {
                         loadAdsPlayer('init');
                     } else {
-                        showLog('片头广告为空或已播完!');
                         adsPlayer.status = 'ending';
                         return;
                     }
@@ -460,7 +462,6 @@ var videoPlayer = function (options, oParent) {
                     if (adsPlayer.totalSeconds > 0) {
                         loadAdsPlayer('init');
                     } else {
-                        showLog('片尾广告为空或已播完!');
                         return;
                     }
                 }
@@ -552,7 +553,7 @@ var videoPlayer = function (options, oParent) {
                     }
                 }
             },
-            /* 广告播放完执行的操作 */
+            // 广告播放完执行的操作 
             playCompleted: function () {
                 if (adsPlayer.status === 'beginning') {
                     h5player.play();
@@ -569,9 +570,7 @@ var videoPlayer = function (options, oParent) {
         adsPlayer.init();
     }
 
-    /**
-     * 加载广告播放器
-     */
+    // 加载广告播放器
     function loadAdsPlayer(operation) {
         var count = adsPlayer.count - adsPlayer.index,
             currentVideo, $currentVideo,
@@ -633,9 +632,8 @@ var videoPlayer = function (options, oParent) {
             adsPlayer.player.preload = preloadVideo;
         }
     }
-    /**
-     * 初始化广告播放器结构 并返回生成的播放器对象
-     */
+
+    // 初始化广告播放器结构 并返回生成的播放器对象
     function initAdsVideoStruct(createType) {
 
         var playerContainer = options.playerContainer;
@@ -662,9 +660,7 @@ var videoPlayer = function (options, oParent) {
 
         playerContainer.find('.videoContainer').append(adsVideoStr).addClass('h5player-status-adsPlayer-playing');
     }
-    /**
-     * 预加载下一个广告
-     */
+    // 预加载下一个广告
     function updateAdsVideoStruct() {
         var playerContainer = options.playerContainer;
         var $html5AdsPlayer = playerContainer.find('.html5-ads-player');
@@ -689,12 +685,9 @@ var videoPlayer = function (options, oParent) {
                 break;
         }
     }
-
-    /**
-     * flv广告播放器
-     * @param {*} videoSource - video原生对象
-     * @param {*} videoUrl - video - url
-     */
+    // flv广告播放器
+    // @param {*} videoSource - video原生对象
+    // @param {*} videoUrl - video - url
     function adsFlvPlayer(videoSource, videoUrl) {
         var player = flvjs.createPlayer({
             type: 'flv',
@@ -712,11 +705,11 @@ var videoPlayer = function (options, oParent) {
         player.load();
     }
 
-    /**
-     * hls广告播放器
-     * @param {*} videoSource - video原生对象
-     * @param {*} videoUrl - video - url
-     */
+    // 
+    //   hls广告播放器
+    //   @param {*} videoSource - video原生对象
+    //   @param {*} videoUrl - video - url
+    //  
     function adsHlsPlayer(videoSource, videoUrl) {
 
         var hls = new Hls();
@@ -749,21 +742,21 @@ var videoPlayer = function (options, oParent) {
         });
     }
 
-    /**
-     * html5原生视频广告播放器
-     * @param {*} videoSource - video原生对象
-     * @param {*} videoUrl - video - url
-     */
+    // 
+    //  * html5原生视频广告播放器
+    //  * @param {*} videoSource - video原生对象
+    //  * @param {*} videoUrl - video - url
+    //  
     function adsHtml5PlayerSource(videoSource, videoUrl) {
         videoSource.src = videoUrl;
     }
 
-    /**
-     * 直播播放时根据用户浏览器兼容情况选好直播流
-     * 1. 优先选择 基于flv.js 的HTML5播放器播放,播 HTTP-FLV直播流
-     * 2. 其次选择 基于hls.js 的HTML5播放器播放,播 HLS直播流
-     * 3. 最后选择Flash播放器，播RTMP直播流(PC)
-     */
+    // 
+    //  * 直播播放时根据用户浏览器兼容情况选好直播流
+    //  * 1. 优先选择 基于flv.js 的HTML5播放器播放,播 HTTP-FLV直播流
+    //  * 2. 其次选择 基于hls.js 的HTML5播放器播放,播 HLS直播流
+    //  * 3. 最后选择Flash播放器，播RTMP直播流(PC)
+    //  
     function initVideoUrl() {
         // 默认 playerType === Html5, IE11 / Edge 暂不支持 flv.js直播播放，但支持flv.js点播播放
         if (flvjs.isSupported() && options.liveStreamUrl.HTTPFLV && !isIE11Browser && !isEdgeBrowser) {
@@ -1307,9 +1300,8 @@ var videoPlayer = function (options, oParent) {
         };
     }
 
-    /** 
-     * 绑定H5播放控制器的相关dom事件
-    */
+    // 绑定H5播放控制器的相关dom事件
+
     function initHtml5CtrlEvents() {
 
         // webkit内核浏览器volue slidebar样式初始化
@@ -1359,6 +1351,8 @@ var videoPlayer = function (options, oParent) {
         options.playerContainer.on('dragstart.vp_custom_event', '.h5player-live-ctrl .h5player-progress-btn-scrubber', function (e) {
             e.preventDefault();
         });
+        // 视频进度条容器 鼠标按下事件
+        options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', progressBarContainerMouse);
         // 视频进度条容器 鼠标按下事件
         options.playerContainer.on('mousedown.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
             e.stopPropagation();
@@ -1610,13 +1604,29 @@ var videoPlayer = function (options, oParent) {
                 Event_timeStamp = e.timeStamp;
                 break;
             case 'mouseenter':
-                showLog('video container mouseenter');
                 $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
                 break;
             case 'mouseleave':
                 if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
-                    showLog('video container mouseleave');
                     $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
+                }
+                break;
+        }
+    }
+
+    // 时间进度条鼠标事件
+    function progressBarContainerMouse(e) {
+        var $videoContainer = options.playerContainer.find('.videoContainer');
+        switch (e.type) {
+            case 'mouseup':
+                Event_timeStamp = e.timeStamp;
+                break;
+            case 'mouseenter':
+                $videoContainer.hasClass('h5player-status-progress-hover') ? '' : $videoContainer.addClass('h5player-status-progress-hover');
+                break;
+            case 'mouseleave':
+                if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
+                    $videoContainer.hasClass('h5player-status-progress-hover') ? $videoContainer.removeClass('h5player-status-progress-hover') : '';
                 }
                 break;
         }
@@ -1721,10 +1731,10 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-    /**
-     * 更新弹幕数据
-     * methodName (open/close)
-     */
+    // 
+    //  * 更新弹幕数据
+    //  * methodName (open/close)
+    //  
     function updateBarrageData(methodName) {
 
         switch (methodName) {
@@ -1793,9 +1803,9 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-    /**
-     *  更新弹幕页面展示效果
-     */
+    // 
+    //  *  更新弹幕页面展示效果
+    //  
     function updateBarrageDisplay(method) {
         if (method == 'clean') {
             options.barrageContainer.empty();
@@ -1877,49 +1887,49 @@ var videoPlayer = function (options, oParent) {
 
             // 通用
             newStyle += '@keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    transform: translateX(-100%);\
-                                }\
-                            }';
+                                    0% {\
+                                        visibility: visible;\
+                                        transform: translateX('+ barrageContainer_width + 'px);\
+                                    }\
+                                    100% {\
+                                        visibility: visible;\
+                                        transform: translateX(-100%);\
+                                    }\
+                                }';
 
             // 兼容火狐浏览器    
             newStyle += '@-moz-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -moz-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -moz-transform: translateX(-100%);\
-                                }\
-                            }';
+                                    0% {\
+                                        visibility: visible;\
+                                        -moz-transform: translateX('+ barrageContainer_width + 'px);\
+                                    }\
+                                    100% {\
+                                        visibility: visible;\
+                                        -moz-transform: translateX(-100%);\
+                                    }\
+                                }';
             // 早期版本webkit内核浏览器
             newStyle += '@-webkit-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -webkit-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -webkit-transform: translateX(-100%);\
-                                }\
-                            }';
+                                    0% {\
+                                        visibility: visible;\
+                                        -webkit-transform: translateX('+ barrageContainer_width + 'px);\
+                                    }\
+                                    100% {\
+                                        visibility: visible;\
+                                        -webkit-transform: translateX(-100%);\
+                                    }\
+                                }';
             // opera
             newStyle += '@-o-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -o-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -o-transform: translateX(-100%);\
-                                }\
-                            }';
+                                    0% {\
+                                        visibility: visible;\
+                                        -o-transform: translateX('+ barrageContainer_width + 'px);\
+                                    }\
+                                    100% {\
+                                        visibility: visible;\
+                                        -o-transform: translateX(-100%);\
+                                    }\
+                                }';
 
             newStyle += '</style>';
             $(newStyle).appendTo('head');
@@ -2053,9 +2063,9 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-    /**
-     * destroy
-     */
+
+    // destroy
+
     function destroy() {
 
         options.player.destroy();
@@ -2069,18 +2079,18 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-    /**
-     * Shows a message in the console of the given type.
-     * type: error / warn
-     */
+
+    // Shows a message in the console of the given type.
+    // type: error / warn
+
     function showError(type, text) {
         console && console[type] && console[type]('videoPlayer: ' + text);
     }
 
-    /**
-     * 输出调试信息
-     * @param {*} logMsg 
-     */
+
+    // 输出调试信息
+    // @param {*} logMsg 
+
     function showLog(logMsg) {
         if (!options.debug) {
             return;
@@ -2181,3 +2191,5 @@ var videoPlayer = function (options, oParent) {
 $.fn[pluginName] = function (options) {
     return new videoPlayer(options, this);
 };
+
+//export default videoPlayer;

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>video palyer</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="viewport" content="initial-scale=1, width=device-width, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" type="text/css" href="testFile/css/live.css" />
+
+</head>
+
+<body>
+    <div class="mainContainer">
+
+        <div class="dataSourceInfo">
+            <label> hostName:</label>
+            <input type="text" name="hostName" placeholder="hostName" value="127.0.0.1" />
+
+            <label>appName:</label>
+            <input type="text" name="appName" placeholder="appName" value="live" />
+
+            <label>streamName:</label>
+            <input type="text" name="streamName" placeholder="streamName" value="reflv" />
+        </div>
+        <!-- 播放器控制 -->
+        <div class="player-control">
+            <input type="button" name="control-play" value="播放" />
+            <input type="button" name="control-pause" value="暂停" />
+            <input type="button" name="control-muted" value="静音" />
+            <input type="button" name="control-seekForward" value="前进" />
+            <input type="button" name="control-seekBackward" value="后退" />
+            <input type="text" name="control-seek-value" value="10" title="寻址目标时间(s)" />
+            <input type="button" name="control-seek" value="寻址" />
+            <input type="text" name="control-playbackspeed-value" value="1.0" title="视频播放速度(1.0为正常)" />
+            <input type="button" name="control-playbackspeed" value="调速" />
+        </div>
+        <!-- live 直播 -->
+        <div class="video-render">
+            <p>Live - 直播</p>
+            <div class="render-item" data-isLive="true">
+                <div class="render-type">
+                    <span class="intro">FlvJs:
+                        <strong>(http-flv)</strong>
+                    </span>
+                    <span class="ant-switch" tabindex="0" data-type="FlvJs">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="render-item" data-isLive="true">
+                <div class="render-type">
+                    <span class="intro">Flash:
+                        <strong>(rtmp)</strong>
+                    </span>
+                    <span class="ant-switch" tabindex="0" data-type="Flash">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="render-item" data-isLive="true">
+                <div class="render-type">
+                    <span class="intro">HlsJs:
+                        <strong>(hls)</strong>
+                    </span>
+                    <span class="ant-switch" tabindex="0" data-type="HlsJs">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+            <p>on-demand - 点播</p>
+
+            <div class="render-item" data-isLive="false">
+                <div class="render-type">
+                    <span class="intro">FlvJs player:</span>
+                    <span class="ant-switch" tabindex="0" data-type="FlvJs">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="render-item" data-isLive="false">
+                <div class="render-type">
+                    <span class="intro">HlsJs player:</span>
+                    <span class="ant-switch" tabindex="0" data-type="HlsJs">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="render-item" data-isLive="false">
+                <div class="render-type">
+                    <span class="intro">Flash player:</span>
+                    <span class="ant-switch" tabindex="0" data-type="Flash">
+                        <span class="ant-switch-inner"></span>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script type="text/javascript" charset="utf-8" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="src/js/lib/flv.js"></script>
+    <script type="text/javascript" charset="utf-8" src="src/js/lib/hls.js"></script>
+    <script type="text/javascript" charset="utf-8" src="src/js/lib/three.js"></script>
+    <script type="text/javascript" charset="utf-8" src="src/js/lib/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8" src="src/js/lib/qrcode.js"></script>
+
+    <script type="text/javascript" charset="utf-8" src="dist/videoPlayer.js"></script>
+    <script type="text/javascript" src="testFile/js/live.js"></script>
+
+</body>
+
+</html>

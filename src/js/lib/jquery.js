@@ -9596,5 +9596,3 @@
 	}
 
 })(window);
-
-export default jQuery;

@@ -698,5 +698,3 @@ var QRCode;
 	 */
 	QRCode.CorrectLevel = QRErrorCorrectLevel;
 })();
-
-export default QRCode;
