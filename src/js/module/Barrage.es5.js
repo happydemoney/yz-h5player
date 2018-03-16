@@ -4,15 +4,16 @@
  **/
 import io from 'io';
 
-class Barrage {
-    Constructor(isLive) {
-        this.isLive = isLive;
-        this.id = undefined;  // 当前socket连接唯一ID
-        this.curCity = undefined; // 当前位置信息
-        this.socket = null;   // socket对象
-    }
+var Barrage = function (isLive) {
+    this.isLive = isLive;
+};
+// Barrage 原型
+Barrage.prototype = {
+    id: undefined,  // 当前socket连接唯一ID
+    curCity: undefined, // 当前位置信息
+    socket: null,   // socket对象
     // 连接弹幕服务器
-    connectServer(serverUrl, name, id) {
+    connectServer: function (serverUrl, name, id) {
         var thisBarrage = this;
         thisBarrage.socket = io(serverUrl);
         //thisBarrage.socket = new io(serverUrl);
@@ -27,9 +28,9 @@ class Barrage {
                 thisBarrage.curCity = region;
             }
         });
-    }
+    },
     // 弹幕主处理程序
-    mainFunc(name, id) {
+    mainFunc: function (name, id) {
         var thisBarrage = this;
         // 请求打开弹幕服务
         thisBarrage.socket.emit("open_barrage", name, id);
@@ -59,9 +60,10 @@ class Barrage {
         thisBarrage.socket.on('error', function (err) {
             console.log("Barrage error");
         });
-    }
+    },
     /* 此方法执行一次 */
-    messageMonitor(callback = function () { }) {
+    messageMonitor: function (callback) {
+        callback = callback || function () { };
         // 监听广播消息
         this.socket.on('server', function (data) {
             var msgs = JSON.parse(data);
@@ -90,12 +92,12 @@ class Barrage {
                 callback(msg);
             }
         });
-    }
+    },
     // 发送消息到服务器
     // barrageMsg { time  content color font }
     // time 时间 - content 弹幕或消息内容 - color 字体颜色 - font 字号大小
     // userType: 0 游客或观众 ， 1 主播 （ 针对直播 ）
-    SendMsgToServer(barrageMsg, userType) {
+    SendMsgToServer: function (barrageMsg, userType) {
         var msg = null;
         userType = userType || 0;
         if (this.isLive) {
@@ -120,15 +122,15 @@ class Barrage {
             };
         }
         this.socket.emit('message', JSON.stringify(msg));
-    }
+    },
     // 获取视频当前进度的弹幕消息
-    getMessageByTime(time) {
+    getMessageByTime: function (time) {
         this.socket.emit('get_msg', time);
-    }
+    },
     // 根据name-id关闭socket连接
-    closeServer(name, id) {
+    closeServer: function (name, id) {
         this.socket.emit('close_barrage', name, id);
     }
-}
+};
 
 export default Barrage;

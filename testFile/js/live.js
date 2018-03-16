@@ -109,7 +109,7 @@ function antSwitch() {
                         },
                         // 广告设置 - 片头、暂停、片尾
                         adsSetting: {
-                            adsActive: true, // 激活状态
+                            adsActive: false, // 激活状态
                             /*
                             beginning: {
                                 timeLength: 15, //广告总时长

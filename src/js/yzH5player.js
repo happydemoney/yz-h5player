@@ -12,12 +12,15 @@ import QRCode from 'qrcode';
 
 // // es6 module
 import swfobject from './module/swfobject.js';
-import _ from './lib/common.js';    // 类似underscore功能函数
+import _ from './utils/common.js';    // 类似underscore功能函数
 import Vr from './module/Vr.js';    // 全景模式相关
 import Barrage from './module/Barrage.js';  // 弹幕交互相关
 
 // scss
 import '../css/videoPlayer.scss';
+
+// 引入常量模块
+import { defaultOptions, shareIcon, vrTextShow, videoType, regVideoType, barrageWordStyle } from './const/constant.js';
 
 'use strict';
 var $window = $(window);
@@ -25,16 +28,18 @@ var $document = $(document);
 var VERSION = '1.0.0';
 var pluginName = 'videoPlayer';
 
-//  视频/视频流类别
-var videoType_RTMP = 'RTMP',    //  rtmp: Flash播放器(only)
-    videoType_FLV = 'FLV',      //  flv: 基于flv.js的HTML5播放器
-    videoType_HLS = 'HLS',      //  hls: 基于hls.js的HTML5播放器
-    videoType_HTML5 = 'HTML5';  //  html5: video标签原生支持的视频格式 .mp4/.ogg/.webm
-
 var idCount = { // 视频ID计数
     Html5: 0,
     Flash: 0
 };
+
+// 是否是支持触摸的设备    
+var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/),
+    // 是否支持触摸事件
+    isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints)),
+    isWebkitBrowser = /webkit/gi.test(navigator.userAgent),
+    isIE11Browser = /rv/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent),
+    isEdgeBrowser = /edge/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent);
 
 var videoPlayer = function (options, oParent) {
     // common jQuery objects
@@ -43,166 +48,25 @@ var videoPlayer = function (options, oParent) {
 
     var VP = $.fn[pluginName];
 
-    // 是否是支持触摸的设备    
-    var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/),
-        // 是否支持触摸事件
-        isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints)),
-        isWebkitBrowser = /webkit/gi.test(navigator.userAgent),
-        isIE11Browser = /rv/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent),
-        isEdgeBrowser = /edge/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent),
-        // 弹幕控制对象 - 包含弹幕开启状态、定时器ID、请求延时时间设定
-        barrageControl = {
-            isInited: false,      // 弹幕动画样式是否初始化
-            isOpen: false,        // 弹幕面板 和 展示 是否开启
-            isMonitored: false,   // 弹幕服务监控是否开启
-            intervalTime: 5000,   // 请求延时时间设定 - 5秒
-            intervalId: undefined,// 定时器ID
-            timeoutTime: 3000,    // 弹幕开关切换延时/弹幕字体大小及颜色设置面板切换关闭延时 为0时实时切换 默认3000
-            settingTimeoutId: undefined // 弹幕字体设置定时器ID
-        },
-        barrageWordStyle = {
-            font: {
-                large: 18,
-                medium: 15,
-                small: 12
-            },
-            color: {
-                white: '#fff',
-                yellow: '#fff100',
-                orange: '#eb6100',
-                red: '#e60012',
-                pink: '#ea68a2',
-                purple: '#920783',
-                blue: '#00a0e9',
-                green: '#22ac38'
-            }
-        },
+    // 弹幕控制对象 - 包含弹幕开启状态、定时器ID、请求延时时间设定
+    var barrageControl = {
+        isInited: false,      // 弹幕动画样式是否初始化
+        isOpen: false,        // 弹幕面板 和 展示 是否开启
+        isMonitored: false,   // 弹幕服务监控是否开启
+        intervalTime: 5000,   // 请求延时时间设定 - 5秒
+        intervalId: undefined,// 定时器ID
+        timeoutTime: 3000,    // 弹幕开关切换延时/弹幕字体大小及颜色设置面板切换关闭延时 为0时实时切换 默认3000
+        settingTimeoutId: undefined // 弹幕字体设置定时器ID
+    },
         seekIncrement = 5, // 快进/退 默认值
-        vrTextShow = ['全景', '半景', '小行星', '鱼眼'],
         beginningAdsLoaded = false, // 片头广告是否已加载 - 默认是false
         reload_currentTime = 0, // 加载清晰度的时间节点
-        shareIcon = ['icon-weibo', 'icon-tWeibo', 'icon-qzone', 'icon-weChat', 'icon-qq', 'icon-renren'],
         Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
     // $.extend(a,b) - 浅拷贝
     // $.extend(true,a,b) - 深拷贝
-    options = $.extend(true, {
-        // 播放器容器
-        playerContainer: oParent,
-        // 是否输出调试信息
-        debug: false,
-        // 直播(true)还是点播(false)
-        isLive: false,
-        // 视频加载完是否自动播放
-        autoplay: true,
-        // HTML5播放控件是否显示
-        controls: true,
-        // 是否使用默认HTML5播放器控件
-        isDefaultControls: false,
-        // 播放器类型
-        playerType: 'Html5',    // Html5 - Flash
-        // 直播视频流 rtmp视频流 - http-flv视频流 - hls分片视频索引文件(m3u8)
-        liveStreamUrl: {
-            RTMP: '',
-            HLS: '',
-            HTTPFLV: ''
-        },
-        // 播放视频源  - .flv - .mp4 - .m3u8 等等
-        videoUrl: '',
-        // 清晰度设置
-        definitionSetting: {
-            // 用于首次加载展示,类似于默认的清晰度
-            firstRate: null,
-            // 用于切换清晰度以及页面展示
-            allRate: []
-        },
-        // 播放器对象
-        player: undefined,
-        // 播放器源video对象
-        player_source: undefined,
-        // 弹幕相关配置
-        barrageSetting: {
-            // 是否显示弹幕按钮
-            isShow: false,
-            wordStyle: {
-                font: 'large',
-                color: 'white'
-            },
-            // 视频信息 - 名称和ID
-            videoInfo: {
-                videoName: '',
-                videoId: ''
-            },
-            // 弹幕服务器地址
-            serverUrl: '',
-            // 弹幕客户端对象 - 处理弹幕发送、接收和显示
-            clientObject: null
-        },
-        // 弹幕显示区域父节点DOM对象
-        barrageContainer: undefined,
-        // 自定义h5播放控制器相关
-        h5playerSetting: {
-            // fullscreenHideTimeout - 全屏隐藏控制条时间间隔设置
-            fullscreenHideTimeout: 2000
-        },
-        // VR相关设置
-        vrSetting: {
-            vrSwitch: false, // vr开关 - 默认关闭
-            //0.普通视频 1.3D左右 2.3D上下 3.半景前视 4.半景3D左右 5.半景3D上下 6.全景视频 7.全景3D左右 8.全景3D上下  9.鱼眼 10.小行星 -- 待实现
-            vrControl: true, // vrControl切换条是否展示
-            vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
-        },
-        // 广告设置 - 片头、暂停、片尾
-        adsSetting: {
-            adsActive: false, // 激活状态
-            beginning: {
-                timeLength: 0, // 广告时长
-                source: [], // 一般为短视频 10~60秒
-                link: []
-            },
-            pause: {
-                source: [], // 一般为图片
-                link: []
-            },
-            ending: {
-                timeLength: 0, // 广告时长
-                source: [], // 一般为短视频 10~60秒
-                link: []
-            }
-        },
-        // 皮肤设置
-        skinSetting: {
-            skinName: 'default', // 经典(classic)、现代(modern)、银白(silver)、时尚(fashion)、优雅(elegant)、科技(technology)、简洁(concise)
-            skinColor: 'default' //  (#46C1DE)  /  (#28AAFA)  /  (#DC3C3C)  /  (#A0E064)  /  (#1289f7)  /   (#30D2FA) /    (#10CA56)
-        },
-        // 面板设置 - logo显示，开/关灯，分享到社交平台等
-        panelSetting: {
-            logo: {
-                isShow: false,
-                src: '',
-                position: 'top-right' // top-left / top-right / bottom-left / bottom-right
-            },
-            light: {
-                isShow: false, // true - false
-                status: 1 // 1: on - 0: off
-            },
-            share: {
-                isShow: false, // true - false
-                options: '0|0|0|0|0|0', // 1 显示，0 不显示； 分享小插件图标新浪，腾讯微博，qq空间，微信，qq，人人网
-                copy: '""|""', // 复制链接 复制html
-                links: '""|""|""|""|""|""' // 分享对应的地址
-            }
-        },
-        // 视频帧截图相关
-        screenshotsSetting: {
-            displayState: false, // 显示状态 - true / false
-            serviceUrl: '', // 截图存放服务器地址
-            suffix: '.jpg', // 默认后缀格式为 .jpg
-            prefix: 'myvideo', // 默认前缀名称为 myvideo
-            timeout: 300 // 控制视频截图滑动显示的频率，值越小，频率越大 - 单位 (ms/毫秒)
-        }
-    }, options);
-
+    options = $.extend(true, defaultOptions, options);
+    options.playerContainer = oParent;
 
     // 自定义html5播放控制器相关 - 事件处理
 
@@ -674,10 +538,10 @@ var videoPlayer = function (options, oParent) {
 
     function adsHtml5Player(videoSource, videoUrl) {
         switch (getVideoType(videoUrl)) {
-            case videoType_FLV:
+            case videoType['flv']:
                 adsFlvPlayer(videoSource, videoUrl);
                 break;
-            case videoType_HLS:
+            case videoType['hls']:
                 adsHlsPlayer(videoSource, videoUrl);
                 break;
             default:
@@ -857,10 +721,10 @@ var videoPlayer = function (options, oParent) {
     // HTML5播放器    
     function Html5Player(operation) {
         switch (getVideoType(options.videoUrl)) {
-            case videoType_FLV:
+            case videoType['flv']:
                 FlvPlayer(operation);
                 break;
-            case videoType_HLS:
+            case videoType['hls']:
                 HlsPlayer(operation);
                 break;
             default:
@@ -891,21 +755,14 @@ var videoPlayer = function (options, oParent) {
     // getVideoType - 获取视频类型
     function getVideoType(videoUrl) {
 
-        var regHLS = /\.m3u8\?|\.m3u8$/gi,
-            regFLV = /\.flv\?|\.flv$/gi,
-            regHTML5 = /\.mp4|\.ogg|\.webm/gi,
-            regRTMP = /^rtmp:/gi;
-
-        if (regRTMP.test(videoUrl)) {
-            return videoType_RTMP;
-        } else if (regFLV.test(videoUrl)) {
-            return videoType_FLV;
-        }
-        else if (regHLS.test(videoUrl)) {
-            return videoType_HLS;
-        }
-        else if (regHTML5.test(videoUrl)) {
-            return videoType_HTML5;
+        if (regVideoType['rtmp'].test(videoUrl)) {
+            return videoType['rtmp'];
+        } else if (regVideoType['flv'].test(videoUrl)) {
+            return videoType['flv'];
+        } else if (regVideoType['hls'].test(videoUrl)) {
+            return videoType['hls'];
+        } else if (regVideoType['html5'].test(videoUrl)) {
+            return videoType['html5'];
         }
     }
 
@@ -2063,9 +1920,7 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-
     // destroy
-
     function destroy() {
 
         options.player.destroy();
@@ -2079,10 +1934,8 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-
     // Shows a message in the console of the given type.
     // type: error / warn
-
     function showError(type, text) {
         console && console[type] && console[type]('videoPlayer: ' + text);
     }
@@ -2090,7 +1943,6 @@ var videoPlayer = function (options, oParent) {
 
     // 输出调试信息
     // @param {*} logMsg 
-
     function showLog(logMsg) {
         if (!options.debug) {
             return;
