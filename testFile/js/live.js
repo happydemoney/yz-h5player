@@ -104,7 +104,7 @@ function antSwitch() {
                             serverUrl: 'http://192.168.1.114:3000'
                         },
                         skinSetting: {
-                            skinName: 'technology', // 优雅(elegant)、科技(technology)、简洁(concise)
+                            skinName: 'default', // 优雅(elegant)、科技(technology)、简洁(concise)
                             skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
                         },
                         // 广告设置 - 片头、暂停、片尾
