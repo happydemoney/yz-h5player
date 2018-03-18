@@ -153,7 +153,7 @@ function antSwitch() {
                             }]
                         },
                         vrSetting: {
-                            vrSwitch: false,
+                            vrSwitch: true,
                             vrControl: true,
                             vrMode: 0
                         },

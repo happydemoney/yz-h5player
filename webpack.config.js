@@ -17,7 +17,6 @@ module.exports = {
         jquery: 'jQuery', // dom操作，dom事件
         flvjs: 'flvjs', // 提供对 .flv  格式视频点直播的支持
         hls: 'Hls',     // 提供对 .m3u8 格式视频的支持
-        three: 'THREE', // 提供对 全景的支持
         io: 'io',       // 提供与弹幕服务器的交互支持
         qrcode: 'QRCode'// qrcode
     },

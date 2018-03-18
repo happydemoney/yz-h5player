@@ -6,32 +6,32 @@
  */
 // three library
 import $ from 'jquery';
-import flvjs from 'flvjs';
+//import flvjs from 'flvjs';
 import Hls from 'hls';
 import QRCode from 'qrcode';
 
 // // es6 module
 import swfobject from './module/swfobject.js';
 import _ from './utils/common.js';    // 类似underscore功能函数
-import Vr from './module/Vr.js';    // 全景模式相关
-import Barrage from './module/Barrage.js';  // 弹幕交互相关
+import Vr from './module/vr.js';    // 全景模式相关
+import Barrage from './module/barrage.js';  // 弹幕交互相关
 
 // scss
 import '../css/videoPlayer.scss';
 
 // 引入常量模块
-import { defaultOptions, shareIcon, vrTextShow, videoType, regVideoType, barrageWordStyle } from './const/constant.js';
+import { shareIcon, vrTextShow, videoType, regVideoType, barrageWordStyle } from './const/constant.js';
+import { defaultConfig } from './config.js';
+
+// core -- create dom structure,bind dom event,load player
+import initPlayerStructure from './playerStructure.js';
+import FlvPlayer from './core/flvPlayer.js';
 
 'use strict';
 var $window = $(window);
 var $document = $(document);
 var VERSION = '1.0.0';
 var pluginName = 'videoPlayer';
-
-var idCount = { // 视频ID计数
-    Html5: 0,
-    Flash: 0
-};
 
 // 是否是支持触摸的设备    
 var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/),
@@ -63,13 +63,10 @@ var videoPlayer = function (options, oParent) {
         reload_currentTime = 0, // 加载清晰度的时间节点
         Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
-    // $.extend(a,b) - 浅拷贝
-    // $.extend(true,a,b) - 深拷贝
-    options = $.extend(true, defaultOptions, options);
+    options = $.extend(true, defaultConfig, options);
     options.playerContainer = oParent;
 
     // 自定义html5播放控制器相关 - 事件处理
-
     var h5player = {
         // 全屏状态
         fullscreenStatus: false,
@@ -720,9 +717,12 @@ var videoPlayer = function (options, oParent) {
 
     // HTML5播放器    
     function Html5Player(operation) {
+
+        let { playerId, volumeSlidebarId } = initPlayerStructure(options);
+
         switch (getVideoType(options.videoUrl)) {
             case videoType['flv']:
-                FlvPlayer(operation);
+                new FlvPlayer().create();
                 break;
             case videoType['hls']:
                 HlsPlayer(operation);
@@ -763,64 +763,6 @@ var videoPlayer = function (options, oParent) {
             return videoType['hls'];
         } else if (regVideoType['html5'].test(videoUrl)) {
             return videoType['html5'];
-        }
-    }
-
-    // 基于flv.js的html5播放器    
-    function FlvPlayer(operation) {
-
-        // 播放器刷新处理
-        if (operation === 'refresh') {
-            options.player.detachMediaElement(options.player_source);
-            options.player.unload();
-
-            options.player.attachMediaElement(options.player_source);
-            options.player.load();
-        } else if (operation === 'reload') {
-            var currentTime = options.player_source.currentTime,
-                paused = options.player_source.paused;
-
-            reload_currentTime = currentTime;
-            options.player.destroy();
-
-            options.player = flvjs.createPlayer({
-                type: 'flv',
-                isLive: options.isLive,
-                cors: options.isLive,
-                url: options.videoUrl,
-                options: {
-                    //fixAudioTimestampGap: false,
-                    //autoCleanupSourceBuffer: true,  // 自动清理MSE内存
-                    enableWorker: true,
-                    enableStashBuffer: true,
-                    stashInitialSize: 128   // 减少首桢显示等待时长 默认384
-                }
-            });
-
-            options.player.attachMediaElement(options.player_source);
-            options.player.load();
-            paused ? (h5player.paused = true) : '';
-        } else {
-            var oIds = initVideoStruct(),
-                videoDom = document.getElementById(oIds.playerId),
-                volumeSlidebar = document.getElementById(oIds.volumeSlidebarId),
-                player = flvjs.createPlayer({
-                    type: 'flv',
-                    isLive: options.isLive,
-                    cors: options.isLive,
-                    url: options.videoUrl,
-                    options: {
-                        //fixAudioTimestampGap: false,
-                        //autoCleanupSourceBuffer: true,  // 自动清理MSE内存
-                        enableWorker: true,
-                        enableStashBuffer: true,
-                        stashInitialSize: 128   // 减少首桢显示等待时长 默认384
-                    }
-                });
-            player.attachMediaElement(videoDom);
-            player.load();
-
-            Html5VideoEventsBind(player, videoDom, volumeSlidebar)
         }
     }
 
@@ -995,351 +937,6 @@ var videoPlayer = function (options, oParent) {
         options.player.destroy = function () {
             swfobject.removeSWF(playerId);
         };
-    }
-
-    // 初始化播放器结构 并返回生成的播放器DOM ID    
-    function initVideoStruct() {
-        idCount.Html5++;
-
-        // 清晰度选择功能字符串
-        var definitionString = '';
-
-        if (options.definitionSetting.allRate.length > 0) {
-            var firstRate = options.definitionSetting.firstRate,
-                allRate = options.definitionSetting.allRate;
-            if (allRate.length === 1) {
-                definitionString += '<div class="h5player-ctrl-bar-btn btn-kbps"><span class="btn-kbps-text" data-res="' + allRate[0].text + '">' + allRate[0].text + '</span></div>';
-            } else {
-                definitionString += '<div class="h5player-ctrl-bar-btn btn-kbps"><span class="btn-kbps-text" data-res="' + firstRate.text + '">' + firstRate.text + '</span>';
-                definitionString += '<div class="h5player-ctrl-bar-kbps-panel">';
-                for (var i = 0; i < allRate.length; i++) {
-                    if (allRate[i].text === firstRate.text) {
-                        definitionString += '<span class="h5player-ctrl-bar-kbps-change h5player-ctrl-bar-kbps-current" data-res="' + allRate[i].text + '">' + allRate[i].text + '</span>';
-                    } else {
-                        definitionString += '<span class="h5player-ctrl-bar-kbps-change" data-res="' + allRate[i].text + '">' + allRate[i].text + '</span>';
-                    }
-                }
-                definitionString += '</div></div>';
-            }
-        }
-
-        // 暂停广告字符串
-        var pauseAdsString = '';
-
-        if (options.adsSetting.adsActive && options.adsSetting.pause.source.length > 0) {
-            pauseAdsString += '<div class="h5player-pause-ads-wrap"><div class="h5player-pause-ads"><span class="close"></span>' +
-                '<a target="_blank" href="' + options.adsSetting.pause.link[0] + '">' +
-                '<img src="' + options.adsSetting.pause.source[0] + '" alt="pause-image"/></a>' +
-                '</div></div>';
-        }
-
-        // 面板字符串 - 开关灯/分享到社交平台/logo显示
-        var panelString = '';
-
-        if (options.panelSetting.logo.isShow || options.panelSetting.light.isShow || options.panelSetting.share.isShow) {
-            panelString = '<div class="h5player-panel-wrap">';
-
-            if (options.panelSetting.logo.isShow) {
-                var logoPosition = options.panelSetting.logo.position,
-                    logoSrc = options.panelSetting.logo.src;
-
-                panelString += '<div class="h5player-panel-logo ' + logoPosition + '">'
-                panelString += '<img src="' + logoSrc + '" alt="logo"/></div>'
-            }
-
-            if (options.panelSetting.light.isShow || options.panelSetting.share.isShow) {
-                var className = 'h5player-panel-control';
-                if (options.panelSetting.light.isShow && options.panelSetting.share.isShow) {
-                    className = 'h5player-panel-control double';
-                }
-                panelString += '<div class="' + className + '">';
-                panelString += options.panelSetting.light.isShow ? '<div class="h5player-panel-light"><span class="icon-light">关灯</span></div>' : '';
-                panelString += options.panelSetting.share.isShow ? '<div class="h5player-panel-share"><span class="icon-share">分享</span></div>' : '';
-                panelString += '</div>';
-            }
-            panelString += '</div>';
-        }
-
-        // 弹幕结构相关
-        var barrageString = '';
-
-        if (options.barrageSetting.isShow) {
-            // 弹幕开关以及弹幕输入
-            barrageString += '<div class="h5player-ctrl-bar-barrage-container">';
-            barrageString += '<div class="h5player-ctrl-bar-barrage-control">' +
-                '<span class="h5player-ctrl-bar-btn btn-barrage-setting" data-info="弹幕设置"></span>' +
-                '<div class="barrage-word-setting">' +
-                '<ul class="word-font"><li class="large active">A</li><li class="medium">A</li><li class="small">A</li></ul>' +
-                '<ul class="word-color"><li class="white active"></li><li class="yellow"></li><li class="orange"></li>' +
-                '<li class="red"></li><li class="pink"></li><li class="purple"></li>' +
-                '<li class="blue"></li><li class="green"></li></ul>' +
-                '</div>';
-            barrageString += '<div class="barrage-input-container">' +
-                '<input class="barrage-input" type= "text" data-info="弹幕输入" placeholder= "发弹幕是不可能不发弹幕的，这辈子不可能不发弹幕的。" />' +
-                '<input class="barrage-send" type="button" data-info="发送弹幕" value="发送" /></div></div>';
-            barrageString += '<span class="h5player-ctrl-bar-btn btn-barrage" data-info="弹幕"></span>';
-
-            barrageString += '</div>';
-        }
-
-        var playerContainer = options.playerContainer,
-            videoIdFormal = options.isLive ? 'live' : 'onDemand',
-            playerId = videoIdFormal + options.playerType + '-' + idCount.Html5,
-            volumeSlidebarId = 'volumeSlidebar' + '-' + idCount.Html5,
-            videoClassName = options.isLive ? 'videoLive' : 'videoOnDemand',
-            controlsTag = (options.controls && options.isDefaultControls) ? 'controls' : '',
-            h5playerStatusClass = (options.autoplay && (options.adsSetting.beginning.timeLength === 0 || !options.adsSetting.adsActive)) ? 'h5player-status-playing' : 'h5player-status-paused',
-            h5playerSkinClass = options.skinSetting.skinName === 'default' ? '' : ' h5player-skin-' + options.skinSetting.skinName,
-            timelineTag = '<div class="h5player-ctrl-timeline-container"><span class="current-time">00:00:01</span>/<span class="duration-time">01:30:30</span></div>', // 点播视频显示 - 当前时间 / 视频长度
-            // 弹幕主体显示部分
-            barrageContentString = options.barrageSetting.isShow ? '<div class="h5player-barrage-wrap"></div>' : '',
-            // 是否开启VR功能 - 且 vrSetting.vrControl为true显示vr切换条
-            vrContentString = options.vrSetting.vrSwitch && options.vrSetting.vrControl ? '<span class="h5player-ctrl-bar-btn btn-vr" data-info="' + vrTextShow[options.vrSetting.vrMode] + '">' + vrTextShow[options.vrSetting.vrMode] + '</span>' : '',
-
-            html5ControlString_live = '<div class="h5player-live-ctrl">' +
-                '<div class="h5player-live-bar">' +
-                '<div class="h5player-ctrl-bar clearfix">' +
-                '<span class="h5player-ctrl-bar-btn btn-play" data-info="播放/暂停"></span>' +
-                '<span class="h5player-ctrl-bar-btn btn-refresh" data-info="刷新"></span>' +
-
-                '<span class="h5player-ctrl-bar-btn btn-fullScreen" data-info="全屏"></span>' +
-                vrContentString +
-                definitionString +
-                '<div class="h5player-ctrl-bar-volume-container">' +
-                '<span class="h5player-ctrl-bar-btn btn-volume"></span>' +
-                '<div class="h5player-ctrl-bar-btn h5player-ctrl-bar-volume-slide">' +
-                '<input id="' + volumeSlidebarId + '" class="h5player-ctrl-bar-volume-slidebar" type="range" min="0" value="100" max="100" data-info="音量调整"/>' +
-                '</div></div>' +
-                barrageString +
-
-                '</div></div></div>',
-
-            html5ControlString_onDemond = '<div class="h5player-live-ctrl">' +
-                '<div class="h5player-live-bar">' +
-
-                '<div class="h5player-ctrl-bar clearfix">' +
-                '<span class="h5player-ctrl-bar-btn btn-play" data-info="播放/暂停"></span>' +
-                timelineTag +
-                '<span class="h5player-ctrl-bar-btn btn-fullScreen" data-info="全屏"></span>' +
-                vrContentString +
-                definitionString +
-                '<div class="h5player-ctrl-bar-volume-container">' +
-                '<span class="h5player-ctrl-bar-btn btn-volume"></span>' +
-                '<div class="h5player-ctrl-bar-btn h5player-ctrl-bar-volume-slide">' +
-                '<input id="' + volumeSlidebarId + '" class="h5player-ctrl-bar-volume-slidebar" type="range" min="0" value="100" max="100" data-info="音量调整"/>' +
-                '</div></div>' +
-                barrageString +
-                '</div>' +
-                '<div class="h5player-progress-bar-container">' +
-                '<div class="h5player-progress-list">' +
-                '<div class="h5player-progress-load"></div>' +
-                '<div class="h5player-progress-play"></div></div>' +
-                '<div class="h5player-progress-btn-scrubber">' +
-                '<div class="h5player-progress-btn-scrubber-indicator"></div></div></div>' +
-                '</div></div>',
-
-            html5ControlString = options.playerType !== 'Flash' && options.controls && !options.isDefaultControls ? (options.isLive ? html5ControlString_live : html5ControlString_onDemond) : '',
-            videoString = '<div class="videoContainer"><div class="liveContent ' + h5playerStatusClass + h5playerSkinClass + '">' +
-                '<video class="' + videoClassName + '" id="' + playerId + '" ' + controlsTag + '>' +
-                'Your browser is too old which does not support HTML5 video' +
-                '</video>' + barrageContentString + html5ControlString + pauseAdsString + panelString +
-                '</div>' +
-                '</div>';
-
-        playerContainer.append(videoString);
-        // 缓存弹幕父节点DOM对象
-        options.barrageContainer = options.playerContainer.find('.h5player-barrage-wrap');
-
-        initHtml5CtrlEvents();
-        return {
-            playerId: playerId,
-            volumeSlidebarId: volumeSlidebarId
-        };
-    }
-
-    // 绑定H5播放控制器的相关dom事件
-
-    function initHtml5CtrlEvents() {
-
-        // webkit内核浏览器volue slidebar样式初始化
-        var webkitVolumePseudoClassInited = false,
-            timeoutId = undefined;
-
-        options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event ', '.videoContainer', videoContainerEvents);
-        // 全屏状态用户鼠标停留超过2s后关闭控制显示条，移动鼠标立即显示控制条
-        options.playerContainer.on('mousemove.vp_custom_event', '.h5player-status-fullScreen', function () {
-            var $this = $(this);
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-                $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
-            }
-            timeoutId = setTimeout(function () {
-                $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
-            }, options.h5playerSetting.fullscreenHideTimeout);
-        });
-        options.playerContainer.on('click.vp_custom_event', '.h5player-status-playing .h5player-ctrl-bar .btn-play', function (e) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            h5player.pause();
-        });
-        options.playerContainer.on('click.vp_custom_event', '.h5player-status-paused .h5player-ctrl-bar .btn-play', function () {
-            var $videoContainer = options.playerContainer.find('.videoContainer');
-            if ($videoContainer.hasClass('h5player-status-adsPlayer-playing')) {
-                return;
-            }
-            h5player.play();
-        });
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-refresh', function () {
-            h5player.refresh();
-        });
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-fullScreen', function () {
-            h5player.fullscreen();
-        });
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-volume', function () {
-            h5player.muted();
-            // 存在广告播放器且正在播放广告
-            if (adsPlayer && adsPlayer.totalSeconds > 0) {
-                adsPlayer.muted();
-            }
-        });
-
-        // 屏蔽视频进度条圆点的拖放事件
-        options.playerContainer.on('dragstart.vp_custom_event', '.h5player-live-ctrl .h5player-progress-btn-scrubber', function (e) {
-            e.preventDefault();
-        });
-        // 视频进度条容器 鼠标按下事件
-        options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', progressBarContainerMouse);
-        // 视频进度条容器 鼠标按下事件
-        options.playerContainer.on('mousedown.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            var $this = $(this),
-                thisWidth = $this.width(),
-                thisParentsOffsetLeft = $this.parents('.videoContainer')[0].offsetLeft,
-                thisPageX = e.pageX,
-                currentTimePercent = (thisPageX - thisParentsOffsetLeft) / thisWidth,
-                param = {
-                    currentTimePercent: currentTimePercent,
-                    isSeek: true
-                },
-                $videoContainer = options.playerContainer.find('.videoContainer');
-
-            if ($videoContainer.hasClass('h5player-status-adsPlayer-playing')) {
-                return;
-            }
-            h5player.progressChange(param);
-            h5player.seeking = true;
-            h5player.pause();
-        });
-
-        if (options.screenshotsSetting.displayState) {
-
-            var throttled = _.throttle(screenshotsShow, options.screenshotsSetting.timeout),
-                $liveContent = options.playerContainer.find('.liveContent');
-
-            // 阻止进度条圆点事件冒泡
-            options.playerContainer.on('mousemove.vp_custom_event', '.h5player-live-ctrl .h5player-progress-btn-scrubber', function (e) {
-                e.stopPropagation();
-            });
-            // 视频进度条容器 鼠标移动事件
-            options.playerContainer.on('mousemove.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
-
-                var contentWidth = $(this).width(),
-                    duration = options.player_source.duration,
-                    offsetX = e.offsetX,
-                    curPercent = offsetX / contentWidth,
-                    currentSecond = Math.round(curPercent * duration),
-                    currentTime = secondToTime(currentSecond);
-                throttled(contentWidth, offsetX, currentSecond, currentTime);
-            });
-
-            options.playerContainer.on('mouseleave.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
-                setTimeout(function () {
-                    screenshotsHide();
-                }, options.screenshotsSetting.timeout);
-            });
-            function screenshotsShow(contentWidth, offsetX, currentSecond, currentTime) {
-
-                var $wrap = $liveContent.find('.h5player-screenshots-wrap');
-                if ($wrap.length === 0) {
-                    var layer = '<div class="h5player-screenshots-wrap"><img alt="screenshots-image" /><span></span></div>';
-                    $liveContent.append(layer);
-
-                    $wrap = $liveContent.find('.h5player-screenshots-wrap');
-                } else {
-                    if ($wrap.hasClass('hide-screenshots')) {
-                        $wrap.removeClass('hide-screenshots');
-                    }
-                }
-                _updateScreenshots();
-                function _updateScreenshots() {
-                    var $img = $wrap.find('img'),
-                        $span = $wrap.find('span'),
-                        wrapWidth = $wrap.width(),
-                        actualOffsetX = offsetX - wrapWidth / 2,
-                        minOffsetX = 0,
-                        maxOffsetX = contentWidth - wrapWidth;
-
-                    actualOffsetX = actualOffsetX < minOffsetX ? minOffsetX : actualOffsetX;
-                    actualOffsetX = actualOffsetX > maxOffsetX ? maxOffsetX : actualOffsetX;
-
-                    $wrap.css('left', actualOffsetX);
-                    $img.attr('src', options.screenshotsSetting.serviceUrl + '/' + options.screenshotsSetting.prefix + (currentSecond + 1) + options.screenshotsSetting.suffix);
-                    $span.text(currentTime);
-                }
-            }
-            function screenshotsHide() {
-                var $wrap = $liveContent.find('.h5player-screenshots-wrap');
-                if (!$wrap.hasClass('hide-screenshots')) {
-                    $wrap.addClass('hide-screenshots');
-                }
-            }
-        }
-
-        // 暂停广告关闭事件
-        options.playerContainer.on('click.vp_custom_event', '.h5player-pause-ads-wrap .h5player-pause-ads .close', pauseAdsClose);
-
-        // 开关灯/分享相关事件
-        options.playerContainer.on('click.vp_custom_event', '.h5player-panel-control .h5player-panel-light .icon-light', lightSwitch);
-        options.playerContainer.on('click.vp_custom_event', '.h5player-panel-control .h5player-panel-share .icon-share', shareSwitch);
-        options.playerContainer.on('click.vp_custom_event', '.h5player-panel-share-content .close', sharePanelHide);
-        options.playerContainer.on('click.vp_custom_event', '.h5player-panel-share-content .share-copy dd', shareCopy);
-
-        // 弹幕相关事件 
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-barrage', barrageFuncSwitch);
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-send', barrageSend);
-        options.playerContainer.on('keydown.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-input', barrageInput);
-
-        // 弹幕字体设置面板控制出现和隐藏
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .btn-barrage-setting', barrageSettingSwitch);
-        options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-word-setting', barrageSettingPanel);
-
-        // 弹幕字体大小/颜色设置
-        options.playerContainer.on('click.vp_custom_event', '.barrage-word-setting .word-font li,.barrage-word-setting .word-color li', barrageWordSetting);
-
-        // 视频清晰度相关事件处理
-        //options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-kbps-text', definitionSwicth);
-        options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-kbps-change', definitionChange);
-
-        // document mousemove/mouseup 
-        $document.on('mousemove.vp_custom_event', documentMousemove);
-        $document.on('mouseup.vp_custom_event', documentMouseup);
-        $document.on('webkitfullscreenchange.vp_custom_event mozfullscreenchange.vp_custom_event MSFullscreenChange.vp_custom_event fullscreenchange.vp_custom_event', documentFullscreenchange);
-
-        // input range - input事件在IE10尚不支持，可以使用change替代
-        options.playerContainer.on('input.vp_custom_event change.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-volume-slidebar', function () {
-            var $this = $(this),
-                thisValue = $this.val();
-            h5player.volumeChange(thisValue / 100);
-            // 存在广告播放器
-            if (adsPlayer && adsPlayer.totalSeconds > 0) {
-                adsPlayer.volumeChange(thisValue / 100);
-            }
-            if (isWebkitBrowser) {
-                $this.attr('data-process', thisValue);
-            }
-        });
     }
 
     // 开关灯

@@ -2,15 +2,176 @@
  * Vr 视频全景模式交互相关
  * 依赖包: three.js
  **/
-class Vr {
-    constructor({ debug, container, vrMode, videoSource } = { debug: false, container: document.body, vrMode: 0, videoSource: '' }) {
-        this.debug = debug;
-        this.container = container;
-        this.vrMode = vrMode; // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
-        this.videoSource = videoSource; // 源视频
-    }
+var Vr = function (options) {
 
-    log(logText) {
+    options = options || {};
+    this.debug = options.debug || false;
+    this.container = options.container || document.body;
+    this.vrMode = options.vrMode; // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
+    this.videoSource = options.videoSource; // 源视频
+    // 定点半球
+    this.VertexHalfSphere =
+        "varying vec3 vPos;" +
+        "void main()" +
+        "{" +
+        "	vPos = position;" +
+        " gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );" +
+        "}"
+        ;
+    // 半景模式
+    this.FragmentHalfSphere =
+        "varying vec3 vPos;" +
+        "uniform sampler2D videoTexture;" +
+        "const float PI = 3.1415926535897932384626433832795;" +
+        "void main(void) {" +
+        "	vec3 normalizedPos = normalize(vPos);" +
+        "	float phi = atan(length(normalizedPos.xy) / -normalizedPos.z);" +
+        "	if (phi < 0.0)" +
+        "		phi += PI;" +
+        "	float theta = atan(normalizedPos.y, normalizedPos.x);" +
+        "	float r = phi / (0.5*PI);" +
+        "	if (r <= 1.0) {" +
+        "		vec2 planeCoords;" +
+        "		planeCoords.x = r * cos(theta);" +
+        "		planeCoords.y = r * sin(theta);" +
+        "		planeCoords.x = planeCoords.x * 0.5 + 0.5;" +
+        "		planeCoords.y = planeCoords.y * 0.5 + 0.5;" +
+        "		gl_FragColor = texture2D(videoTexture, planeCoords);" +
+        "	} else {" +
+        "		gl_FragColor = vec4(vec3(0.0), 1.0);" +
+        "	}" +
+        "}"
+        ;
+    // 定点设置小行星模式
+    this.VertexLittlePlanet =
+        "varying vec2 vUv;" +
+        "void main()" +
+        "{" +
+        "	vUv = uv;" +
+        "	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );" +
+        "}"
+        ;
+    // 小行星模式
+    this.FragmentLittlePlanet =
+        "varying vec2 vUv;" +
+        "uniform sampler2D videoTexture;" +
+        "uniform float scale, aspect;" +
+        "uniform float phi0, lambda0;" +
+        "" +
+        "const float PI = 3.1415926535897932384626433832795;" +
+        "" +
+        "vec2 directionToTexturePos(vec2 coords) {" +
+        "	float p = length(coords);" +
+        "	float c = 2.0 * atan( p );" +
+        "" +
+        "	float lat = asin(cos(c) * sin(phi0) + coords.y * sin(c) * cos(phi0) / p);" +
+        "	float lon = lambda0 + atan( (coords.x * sin(c)), (p * cos(phi0) * cos(c) - coords.y * sin(phi0) * sin(c)) );" +
+        "" +
+        "	return vec2( mod(lon/(2.0*PI), 1.0), 0.5+lat/PI ); " +
+        "}" +
+        "" +
+        "void main(void) {" +
+        "	vec2 vertexCoords;" +
+        "	vec2 scaledCoords;" +
+        "	vec2 texCoords;" +
+        "" +
+        "	vertexCoords = vUv * 2.0 - 1.0;" +
+        "	scaledCoords = vertexCoords * vec2(scale * aspect, -scale);" +
+        "	texCoords = directionToTexturePos(scaledCoords);" +
+        "" +
+        "	gl_FragColor = texture2D(videoTexture, texCoords);" +
+        "}"
+        ;
+    // 鱼眼模式
+    this.FragmentFisheye =
+        "varying vec2 vUv;" +
+        "uniform sampler2D videoTexture;" +
+        "uniform float scale, aspect;" +
+        "uniform float phi0, lambda0;" +
+        "" +
+        "varying vec2 vertexCoords;" +
+        "" +
+        "const float PI = 3.1415926535897932384626433832795;" +
+        "" +
+        "vec2 directionToTexturePos(vec2 coords) {" +
+        "    float r = length(coords);" +
+        "    float theta = atan(coords.y, coords.x);" +
+        "    float phi = r * scale * PI * 0.5;" +
+        "    " +
+        "    vec3 point;" +
+        "    point.x = sin(phi) * cos(theta);" +
+        "    point.y = sin(phi) * sin(theta);" +
+        "    point.z = -cos(phi);" +
+        "    " +
+        "    mat3 rotate;" +
+        "    float cosl = cos(lambda0);" +
+        "    float sinl = sin(lambda0);" +
+        "    float cosp = cos(phi0);" +
+        "    float sinp = sin(phi0);" +
+        "    rotate[0] = vec3(cosl, 0.0, -sinl);" +
+        "    rotate[1] = vec3(sinl * sinp, cosp, cosl * sinp);" +
+        "    rotate[2] = vec3(sinl * cosp, -sinp, cosl * cosp);" +
+        "    " +
+        "    vec3 point2 = rotate * point;" +
+        "    " +
+        "    vec2 longitudeLatitude = vec2( (atan(point2.x, -point2.z) / PI + 1.0) * 0.5," +
+        "                              0.5 + asin(point2.y) / PI );" +
+        "    return longitudeLatitude; " +
+        "}" +
+        "void main(void) {" +
+        "    vec2 scaledCoords;" +
+        "    vec2 texCoords;" +
+        "    " +
+        "    scaledCoords = vUv * 2.0 - 1.0;" +
+        "    scaledCoords = scaledCoords * vec2(aspect, 1.0);" +
+        "    if (length(scaledCoords) <= 1.0) {" +
+        "        texCoords = directionToTexturePos(scaledCoords);" +
+        "        gl_FragColor = texture2D(videoTexture, texCoords);" +
+        "    } else {" +
+        "        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);" +
+        "    }" +
+        "}";
+};
+// Vr原型
+Vr.prototype = {
+    initTimer: undefined, // init 内定时器id
+
+    texture: null, // THREE纹理
+    camera: null, // THREE镜头
+    scene: null, // THREE场景
+    uniforms: null, // THREE - uniforms ~ 2：小行星,3：鱼眼 动画时需要引用
+    renderFlag: false, // THREE 渲染器标记 只渲染一次
+    renderer: null, // THREE 渲染器
+
+    // 事件处理相关变量
+    eventHandleVariable: {
+        isMouseDown: false,
+        manualHRotateOnStart: undefined,
+        manualVRotateOnStart: undefined,
+        manualHRotate: 0,
+        manualVRotate: 0,
+        viewpointLonOnStart: undefined,
+        viewpointLatOnStart: undefined,
+        viewpointLon: 0,
+        viewpointLat: -Math.PI / 2,
+        pointxOnStart: undefined,
+        pointyOnStart: undefined,
+        touchXOnStart: undefined,
+        touchYOnStart: undefined,
+        fov: 65
+    },
+
+    rotationQuat: {
+        deviceAlpha: null,
+        deviceBeta: null,
+        deviceGamma: null,
+        lastx: undefined,
+        lasty: undefined,
+        lastz: undefined,
+        updateOrientation: false
+    },
+
+    log: function (logText) {
         if (!this.debug) {
             return;
         }
@@ -19,27 +180,29 @@ class Vr {
         } else {
             alert(logText + '<br/>');
         }
-    }
+    },
     /**
      * 初始化
      * @param: stream_url(视频地址);
      * @param: vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
      */
-    init() {
+    init: function () {
+
         var thisVr = this;
 
         if (thisVr.vrMode == 3) {
+            //thisVr.eventHandleVariable.viewpointLon = 0;
             thisVr.eventHandleVariable.viewpointLat = 0;
         }
 
         thisVr.initTimer = setInterval(function () {
             thisVr.main();
         }, 500);
-    }
+    },
     /**
      * 主函数
      */
-    main() {
+    main: function () {
         var thisVr = this;
         thisVr.log('main function');
 
@@ -251,11 +414,11 @@ class Vr {
         function _onOrientationChange(event) {
             thisVr.rotationQuat.updateOrientation = true;
         }
-    }
+    },
     /**
      * 周期渲染函数，该函数被用于逐帧计数器函数调用
      */
-    animate() {
+    animate: function () {
         var thisVr = this;
         window.requestAnimationFrame(thisVr.animate.bind(thisVr));
         thisVr.camera.lookAt(thisVr.scene.position);
@@ -336,167 +499,6 @@ class Vr {
             return quat;
         }
     }
-}
-// 定点半球
-Vr.prototype.VertexHalfSphere =
-    "varying vec3 vPos;" +
-    "void main()" +
-    "{" +
-    "	vPos = position;" +
-    " gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );" +
-    "}";
-// 半景模式
-Vr.prototype.FragmentHalfSphere =
-    "varying vec3 vPos;" +
-    "uniform sampler2D videoTexture;" +
-    "const float PI = 3.1415926535897932384626433832795;" +
-    "void main(void) {" +
-    "	vec3 normalizedPos = normalize(vPos);" +
-    "	float phi = atan(length(normalizedPos.xy) / -normalizedPos.z);" +
-    "	if (phi < 0.0)" +
-    "		phi += PI;" +
-    "	float theta = atan(normalizedPos.y, normalizedPos.x);" +
-    "	float r = phi / (0.5*PI);" +
-    "	if (r <= 1.0) {" +
-    "		vec2 planeCoords;" +
-    "		planeCoords.x = r * cos(theta);" +
-    "		planeCoords.y = r * sin(theta);" +
-    "		planeCoords.x = planeCoords.x * 0.5 + 0.5;" +
-    "		planeCoords.y = planeCoords.y * 0.5 + 0.5;" +
-    "		gl_FragColor = texture2D(videoTexture, planeCoords);" +
-    "	} else {" +
-    "		gl_FragColor = vec4(vec3(0.0), 1.0);" +
-    "	}" +
-    "}"
-    ;
-// 定点设置小行星模式
-Vr.prototype.VertexLittlePlanet =
-    "varying vec2 vUv;" +
-    "void main()" +
-    "{" +
-    "	vUv = uv;" +
-    "	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );" +
-    "}"
-    ;
-// 小行星模式
-Vr.prototype.FragmentLittlePlanet =
-    "varying vec2 vUv;" +
-    "uniform sampler2D videoTexture;" +
-    "uniform float scale, aspect;" +
-    "uniform float phi0, lambda0;" +
-    "" +
-    "const float PI = 3.1415926535897932384626433832795;" +
-    "" +
-    "vec2 directionToTexturePos(vec2 coords) {" +
-    "	float p = length(coords);" +
-    "	float c = 2.0 * atan( p );" +
-    "" +
-    "	float lat = asin(cos(c) * sin(phi0) + coords.y * sin(c) * cos(phi0) / p);" +
-    "	float lon = lambda0 + atan( (coords.x * sin(c)), (p * cos(phi0) * cos(c) - coords.y * sin(phi0) * sin(c)) );" +
-    "" +
-    "	return vec2( mod(lon/(2.0*PI), 1.0), 0.5+lat/PI ); " +
-    "}" +
-    "" +
-    "void main(void) {" +
-    "	vec2 vertexCoords;" +
-    "	vec2 scaledCoords;" +
-    "	vec2 texCoords;" +
-    "" +
-    "	vertexCoords = vUv * 2.0 - 1.0;" +
-    "	scaledCoords = vertexCoords * vec2(scale * aspect, -scale);" +
-    "	texCoords = directionToTexturePos(scaledCoords);" +
-    "" +
-    "	gl_FragColor = texture2D(videoTexture, texCoords);" +
-    "}"
-    ;
-// 鱼眼模式
-Vr.prototype.FragmentFisheye =
-    "varying vec2 vUv;" +
-    "uniform sampler2D videoTexture;" +
-    "uniform float scale, aspect;" +
-    "uniform float phi0, lambda0;" +
-    "" +
-    "varying vec2 vertexCoords;" +
-    "" +
-    "const float PI = 3.1415926535897932384626433832795;" +
-    "" +
-    "vec2 directionToTexturePos(vec2 coords) {" +
-    "    float r = length(coords);" +
-    "    float theta = atan(coords.y, coords.x);" +
-    "    float phi = r * scale * PI * 0.5;" +
-    "    " +
-    "    vec3 point;" +
-    "    point.x = sin(phi) * cos(theta);" +
-    "    point.y = sin(phi) * sin(theta);" +
-    "    point.z = -cos(phi);" +
-    "    " +
-    "    mat3 rotate;" +
-    "    float cosl = cos(lambda0);" +
-    "    float sinl = sin(lambda0);" +
-    "    float cosp = cos(phi0);" +
-    "    float sinp = sin(phi0);" +
-    "    rotate[0] = vec3(cosl, 0.0, -sinl);" +
-    "    rotate[1] = vec3(sinl * sinp, cosp, cosl * sinp);" +
-    "    rotate[2] = vec3(sinl * cosp, -sinp, cosl * cosp);" +
-    "    " +
-    "    vec3 point2 = rotate * point;" +
-    "    " +
-    "    vec2 longitudeLatitude = vec2( (atan(point2.x, -point2.z) / PI + 1.0) * 0.5," +
-    "                              0.5 + asin(point2.y) / PI );" +
-    "    return longitudeLatitude; " +
-    "}" +
-    "void main(void) {" +
-    "    vec2 scaledCoords;" +
-    "    vec2 texCoords;" +
-    "    " +
-    "    scaledCoords = vUv * 2.0 - 1.0;" +
-    "    scaledCoords = scaledCoords * vec2(aspect, 1.0);" +
-    "    if (length(scaledCoords) <= 1.0) {" +
-    "        texCoords = directionToTexturePos(scaledCoords);" +
-    "        gl_FragColor = texture2D(videoTexture, texCoords);" +
-    "    } else {" +
-    "        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);" +
-    "    }" +
-    "}";
-// init 内定时器id
-Vr.prototype.initTimer = undefined;
-// THREE纹理
-Vr.prototype.texture = null;
-// THREE镜头
-Vr.prototype.camera = null;
-// THREE场景
-Vr.prototype.scene = null;
-// THREE - uniforms ~ 2：小行星,3：鱼眼 动画时需要引用
-Vr.prototype.uniforms = null;
-// THREE 渲染器标记 只渲染一次
-Vr.prototype.renderFlag = false;
-// THREE 渲染器
-Vr.prototype.renderer = null;
-// 事件处理相关变量
-Vr.prototype.eventHandleVariable = {
-    isMouseDown: false,
-    manualHRotateOnStart: undefined,
-    manualVRotateOnStart: undefined,
-    manualHRotate: 0,
-    manualVRotate: 0,
-    viewpointLonOnStart: undefined,
-    viewpointLatOnStart: undefined,
-    viewpointLon: 0,
-    viewpointLat: -Math.PI / 2,
-    pointxOnStart: undefined,
-    pointyOnStart: undefined,
-    touchXOnStart: undefined,
-    touchYOnStart: undefined,
-    fov: 65
-};
-Vr.prototype.rotationQuat = {
-    deviceAlpha: null,
-    deviceBeta: null,
-    deviceGamma: null,
-    lastx: undefined,
-    lasty: undefined,
-    lastz: undefined,
-    updateOrientation: false
 };
 
 export default Vr;
