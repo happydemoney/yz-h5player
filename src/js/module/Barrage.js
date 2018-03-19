@@ -5,11 +5,8 @@
 import io from 'io';
 
 class Barrage {
-    Constructor(isLive) {
+    constructor(isLive) {
         this.isLive = isLive;
-        this.id = undefined;  // 当前socket连接唯一ID
-        this.curCity = undefined; // 当前位置信息
-        this.socket = null;   // socket对象
     }
     // 连接弹幕服务器
     connectServer(serverUrl, name, id) {

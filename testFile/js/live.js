@@ -153,7 +153,7 @@ function antSwitch() {
                             }]
                         },
                         vrSetting: {
-                            vrSwitch: true,
+                            vrSwitch: false,
                             vrControl: true,
                             vrMode: 0
                         },
@@ -235,8 +235,8 @@ function setStreamUrl() {
             // flv: 'http://' + hostName + ':' + onDemandPort + '/videoTest/神奇女侠.mp4',
             // hls: 'http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8'
             //hls: 'http://' + hostName + ':' + onDemandPort + '/videoTest/m3u8/xmpolice.m3u8',
-            //hls: 'https://cdn.memorieslab.com//video/mgn_brand_video.mp4'
-            hls: 'http://' + hostName + ':' + onDemandPort + '/videotest/mgn_brand_video.mp4'
+            hls: 'https://cdn.memorieslab.com//video/mgn_brand_video.mp4'
+            //hls: 'http://' + hostName + ':' + onDemandPort + '/videotest/mgn_brand_video.mp4'
             //hls: 'http://cdn.simope.net/hls/1482227427575463/50a672b9edffa2b5ee6377d054557c3a/1_720_25_H264_1200_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/1bc4faadc6ca4e60b22b93d891386ea9.m3u8'
             //hls: "http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/a28ecbdaffa819dfa0747362002be70e.mp4"
         };

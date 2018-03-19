@@ -29,10 +29,6 @@ export const defaultConfig = {
         // 用于切换清晰度以及页面展示
         allRate: []
     },
-    // 播放器对象
-    player: undefined,
-    // 播放器源video对象
-    player_source: undefined,
     // 弹幕相关配置
     barrageSetting: {
         // 是否显示弹幕按钮

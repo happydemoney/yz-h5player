@@ -1,10 +1,10 @@
 /**
  * 初始化播放器结构 并返回生成的播放器DOM ID    
  */
+import { vrTextShow } from '../const/constant.js';
+import _ from '../utils/common.js';    // 类似underscore功能函数
 
-import initHtml5CtrlEvents from './playerDomEvents.js';
-
-export function initPlayerStructure(options) {
+function initPlayerStructure(options) {
 
     // 清晰度选择功能字符串
     let definitionString = '';
@@ -87,10 +87,11 @@ export function initPlayerStructure(options) {
         barrageString += '</div>';
     }
 
-    let playerContainer = options.playerContainer,
+    let now = _.now(),
+        playerContainer = options.playerContainer,
         videoIdFormal = options.isLive ? 'live' : 'onDemand',
-        playerId = videoIdFormal + options.playerType + '-' + new Date().getTime(),
-        volumeSlidebarId = 'volumeSlidebar' + '-' + new Date().getTime(),
+        playerId = videoIdFormal + options.playerType + '-' + now,
+        volumeSlidebarId = 'volumeSlidebar' + '-' + now,
         videoClassName = options.isLive ? 'videoLive' : 'videoOnDemand',
         controlsTag = (options.controls && options.isDefaultControls) ? 'controls' : '',
         h5playerStatusClass = (options.autoplay && (options.adsSetting.beginning.timeLength === 0 || !options.adsSetting.adsActive)) ? 'h5player-status-playing' : 'h5player-status-paused',
@@ -155,9 +156,10 @@ export function initPlayerStructure(options) {
     // 缓存弹幕父节点DOM对象
     options.barrageContainer = options.playerContainer.find('.h5player-barrage-wrap');
 
-    initHtml5CtrlEvents(options);
     return {
-        playerId: playerId,
-        volumeSlidebarId: volumeSlidebarId
+        playerSrc: document.getElementById(playerId),
+        playerVolume: document.getElementById(volumeSlidebarId)
     };
-}
+};
+
+export default initPlayerStructure;
