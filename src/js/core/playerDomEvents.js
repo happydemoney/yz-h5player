@@ -2,14 +2,15 @@
  * 绑定H5播放控制器的相关dom事件
  */
 // 引入常量模块
-import { shareIcon, barrageWordStyle } from '../const/constant.js';
+import { shareIcon } from '../const/constant.js';
 import QRCode from 'qrcode';
 
 // util function
 import _ from '../utils/common.js';    // 类似underscore功能函数
 import { secondToTime, fullscreenElement, showError } from '../utils/util.js';
 
-import { updateBarrageData } from '../module/barrage/barrageClient.js';
+// barrageClient
+import { barrageFuncSwitch, updateBarrageData, barrageSend, barrageInput, barrageSettingSwitch, barrageSettingPanel, barrageWordSetting } from '../module/barrage/barrageClient.js';
 
 let Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
@@ -76,24 +77,24 @@ function initHtml5CtrlEvents(options, h5player) {
     options.playerContainer.on('dragstart.vp_custom_event', '.h5player-live-ctrl .h5player-progress-btn-scrubber', function (e) {
         e.preventDefault();
     });
+
     // 视频进度条容器 鼠标按下事件 - // 时间进度条鼠标事件
-    options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container',
-        function progressBarContainerMouse(e) {
-            var $videoContainer = options.playerContainer.find('.videoContainer');
-            switch (e.type) {
-                case 'mouseup':
-                    Event_timeStamp = e.timeStamp;
-                    break;
-                case 'mouseenter':
-                    $videoContainer.hasClass('h5player-status-progress-hover') ? '' : $videoContainer.addClass('h5player-status-progress-hover');
-                    break;
-                case 'mouseleave':
-                    if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
-                        $videoContainer.hasClass('h5player-status-progress-hover') ? $videoContainer.removeClass('h5player-status-progress-hover') : '';
-                    }
-                    break;
-            }
-        });
+    options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
+        var $videoContainer = options.playerContainer.find('.videoContainer');
+        switch (e.type) {
+            case 'mouseup':
+                Event_timeStamp = e.timeStamp;
+                break;
+            case 'mouseenter':
+                $videoContainer.hasClass('h5player-status-progress-hover') ? '' : $videoContainer.addClass('h5player-status-progress-hover');
+                break;
+            case 'mouseleave':
+                if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
+                    $videoContainer.hasClass('h5player-status-progress-hover') ? $videoContainer.removeClass('h5player-status-progress-hover') : '';
+                }
+                break;
+        }
+    });
     // 视频进度条容器 鼠标按下事件
     options.playerContainer.on('mousedown.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
         e.stopPropagation();
@@ -296,66 +297,29 @@ function initHtml5CtrlEvents(options, h5player) {
     });
 
     // 弹幕相关事件 
-    // 弹幕开关处理程序 - barrageFuncSwitch
+    // 弹幕开关处理程序
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-barrage', function () {
-        var $this = $(this),
-            $thisParent = $this.parent(), // .h5player-ctrl-bar-barrage-container
-            $parentLiveContent = $this.parents('.liveContent'),
-            $h5playerBarrageWrap = $parentLiveContent.find('.h5player-barrage-wrap'),
-            $barrageControl = $thisParent.find('.h5player-ctrl-bar-barrage-control'),
-            $videoContainer = options.playerContainer.find('.videoContainer');
-
-        if ($videoContainer.hasClass('h5player-status-adsPlayer-playing') || $this.hasClass('disabled')) {
-            return;
-        }
-
-        if (!$this.hasClass('active')) {
-            initBarrageStyle(options);
-            $barrageControl.addClass('active');
-            $this.addClass('active');
-
-            if (options.barrageControl.timeoutTime > 0) {
-                $this.addClass('disabled');
-                // 延时 options.barrageControl.timeoutTime 开启弹幕切换
-                setTimeout(function () {
-                    $this.removeClass('disabled');
-                }, options.barrageControl.timeoutTime);
-            }
-
-            options.barrageControl.isOpen = true;
-            updateBarrageData({ methodName: 'open', options: options });
-        } else {
-            $barrageControl.removeClass('active');
-            $this.removeClass('active');
-
-            if (options.barrageControl.timeoutTime > 0) {
-                $this.addClass('disabled');
-                // 延时 options.barrageControl.timeoutTime 开启弹幕切换
-                setTimeout(function () {
-                    $this.removeClass('disabled');
-                }, options.barrageControl.timeoutTime);
-            }
-
-            $h5playerBarrageWrap.empty();
-            options.barrageControl.isOpen = false;
-            updateBarrageData({ methodName: 'close', options: options });
-        }
+        barrageFuncSwitch(this, options, h5player.getCurrenttime());
     });
-    // barrageSend
-    options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-send', barrageSend);
-    // barrageInput
-    options.playerContainer.on('keydown.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-input', barrageInput);
+    options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-send', function () {
+        barrageSend(this, options, h5player.getCurrenttime());
+    });
 
+    options.playerContainer.on('keydown.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-input', barrageInput);
     // 弹幕字体设置面板控制出现和隐藏
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .btn-barrage-setting', barrageSettingSwitch);
     options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-word-setting', barrageSettingPanel);
 
     // 弹幕字体大小/颜色设置
-    options.playerContainer.on('click.vp_custom_event', '.barrage-word-setting .word-font li,.barrage-word-setting .word-color li', barrageWordSetting);
+    options.playerContainer.on('click.vp_custom_event', '.barrage-word-setting .word-font li,.barrage-word-setting .word-color li', function () {
+        barrageWordSetting(this, options.barrageSetting);
+    });
 
     // 视频清晰度相关事件处理
     //options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-kbps-text', definitionSwicth);
-    options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-kbps-change', definitionChange);
+    options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-kbps-change', function () {
+        definitionChange(this, options);
+    });
 
     // document mousemove/mouseup 
     $(document).on('mousemove.vp_custom_event', function (e) {
@@ -413,229 +377,15 @@ function pauseAdsClose() {
     $pauseAdsWrap.removeClass('active');
 }
 
-//  初始化弹幕动画样式
-function initBarrageStyle(options) {
-
-    if (!options.barrageControl.isInited) {
-        options.barrageControl.isInited = true;
-
-        // 弹幕动画完成 - 清除事件
-        // Chrome, Safari 和 Opera 代码 - webkitAnimationEnd
-        // 标准写法 - animationend
-        options.barrageContainer.on('animationend webkitAnimationEnd', '.h5player-barrage-item', function () {
-            $(this).remove();
-        });
-
-        let barrageContainer_width = options.barrageContainer.width();
-        let newStyle = '<style>';
-
-        // 通用
-        newStyle += '@keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    transform: translateX(-100%);\
-                                }\
-                            }';
-
-        // 兼容火狐浏览器    
-        newStyle += '@-moz-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -moz-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -moz-transform: translateX(-100%);\
-                                }\
-                            }';
-        // 早期版本webkit内核浏览器
-        newStyle += '@-webkit-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -webkit-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -webkit-transform: translateX(-100%);\
-                                }\
-                            }';
-        // opera
-        newStyle += '@-o-keyframes barrage {\
-                                0% {\
-                                    visibility: visible;\
-                                    -o-transform: translateX('+ barrageContainer_width + 'px);\
-                                }\
-                                100% {\
-                                    visibility: visible;\
-                                    -o-transform: translateX(-100%);\
-                                }\
-                            }';
-
-        newStyle += '</style>';
-        $(newStyle).appendTo('head');
-    }
-}
-
-// 发送弹幕
-function barrageSend() {
-    var $this = $(this),
-        $barrageInput = $this.siblings('.barrage-input'),
-        barrageInfo = $barrageInput.val(),
-        barrageMsg;
-
-    if (!barrageInfo) {
-        alert('请输入弹幕信息~');
-    } else {
-
-        var wordFont = barrageWordStyle.font[options.barrageSetting.wordStyle.font],
-            wordColor = barrageWordStyle.color[options.barrageSetting.wordStyle.color];
-
-        barrageMsg = {
-            time: Math.round(options.player_source.currentTime),
-            content: barrageInfo,
-            font: wordFont,
-            color: wordColor
-        };
-
-        options.barrageSetting.clientObject.SendMsgToServer(barrageMsg);
-        options.barrageContainer.append(createBarrageDom(barrageMsg));
-        $barrageInput.val('');
-    }
-}
-//  *  更新弹幕页面展示效果
-function updateBarrageDisplay(method) {
-    if (method == 'clean') {
-        options.barrageContainer.empty();
-    } else if (!options.barrageControl.isMonitored) {
-
-        options.barrageControl.isMonitored = true;
-        options.barrageSetting.clientObject.messageMonitor(function (receiveMsg) {
-
-            if (receiveMsg.length > 0) {
-                for (var i = 0; i < receiveMsg.length; i++) {
-                    options.barrageContainer.append(createBarrageDom(receiveMsg[i]));
-                }
-            }
-
-        });
-    }
-}
-
-// 创建弹幕dom节点
-function createBarrageDom(barrageData) {
-    var showMsg = '';
-    // 直播
-    if (options.isLive) {
-        if (typeof barrageData.content === 'object') {
-            showMsg = barrageData.content.ip + ' : ' + barrageData.content.msg
-        } else {
-            return;
-        }
-    } else {
-        showMsg = barrageData.content;
-    }
-
-    var barrageItem = '<div class="h5player-barrage-item animation_barrage" style="' +
-        'color:' + barrageData.color + ';' +
-        'font-size:' + barrageData.font + 'px;' +
-        'top:' + randomTop() + 'px;' +
-        '">' + showMsg + '</div>';
-
-    return barrageItem;
-}
-// 随机生成弹幕位置 - 距离视频顶部
-function randomTop() {
-    var randomNum = Math.random(),
-        randomTop = Math.floor(randomNum * (576 - 26));
-
-    return randomTop;
-}
-// 弹幕输入处理
-function barrageInput(event) {
-    // 回车
-    if (event.keyCode == 13) {
-        var $this = $(this),
-            $barrageSend = $this.siblings('.barrage-send');
-        $barrageSend.trigger('click');
-    }
-}
-
-// 弹幕字体设置面板控制出现和隐藏
-function barrageSettingSwitch() {
-    var $this = $(this),
-        $barrageWordSetting = $this.siblings('.barrage-word-setting');
-
-    $barrageWordSetting.toggleClass('active');
-
-    if ($barrageWordSetting.hasClass('active')) {
-        options.barrageControl.settingTimeoutId = setTimeout(function () {
-            if ($barrageWordSetting.hasClass('active')) {
-                $barrageWordSetting.removeClass('active');
-            }
-        }, options.barrageControl.timeoutTime);
-    } else {
-        if (typeof options.barrageControl.settingTimeoutId !== 'undefined') {
-            clearTimeout(options.barrageControl.settingTimeoutId);
-        }
-    }
-}
-
-function barrageSettingPanel(e) {
-    switch (e.type) {
-        case 'mouseup':
-            Event_timeStamp = e.timeStamp;
-            break;
-        case 'mouseenter':
-            clearTimeout(options.barrageControl.settingTimeoutId);
-            break;
-        case 'mouseleave':
-            if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
-                var $this = $(this);
-                if ($this.hasClass('active')) {
-                    $this.removeClass('active');
-                }
-            }
-            break;
-    }
-}
-
-// 弹幕字体大小(颜色)设置
-function barrageWordSetting() {
-    var $this = $(this),
-        parentClassName = $this.parent('ul').attr('class'),
-        key = '';
-
-    if (parentClassName === 'word-font') {
-        key = 'font';
-    } else if (parentClassName === 'word-color') {
-        key = 'color';
-    } else {
-        return;
-    }
-
-    if (!$this.hasClass('active')) {
-        var $active = $this.siblings('.active'),
-            thisClassName = $this.attr('class');
-
-        options.barrageSetting.wordStyle[key] = thisClassName;
-
-        $this.addClass('active');
-        $active.removeClass('active');
-    }
-}
-
 // 清晰度切换
-function definitionChange() {
-    var $this = $(this);
+function definitionChange(element, options) {
+
+    let $this = $(element);
 
     if ($this.hasClass('h5player-ctrl-bar-kbps-current')) {
         return;
     } else {
-        var $thisParents = $this.parents('.btn-kbps'),
+        let $thisParents = $this.parents('.btn-kbps'),
             $kbpsText = $thisParents.find('.btn-kbps-text'),
             $current = $this.siblings('.h5player-ctrl-bar-kbps-current'),
             newDefinitionText = $this.attr('data-res');
@@ -647,7 +397,7 @@ function definitionChange() {
             $this.addClass('h5player-ctrl-bar-kbps-current');
             $kbpsText.text(newDefinitionText).attr('data-res', newDefinitionText);
         }
-        reloadDefinition(newDefinitionText, _loadAfterFunc);
+        reloadDefinition(options, newDefinitionText, _loadAfterFunc);
 
         // 暂时 - 清晰度切换完成执行
         setTimeout(function () {
@@ -655,6 +405,29 @@ function definitionChange() {
         }, 1000);
 
     }
+}
+
+/**
+ * 重新加载清晰度
+ * @param {String} newDefinitionText 
+ * @param {function} callback 
+ */
+function reloadDefinition(options, newDefinitionText, callback) {
+
+    var allRate = options.definitionSetting.allRate;
+
+    for (var i = 0; i < allRate.length; i++) {
+        if (newDefinitionText === allRate[i].text) {
+            options.videoUrl = allRate[i].url;
+            break;
+        }
+    }
+
+    options.oPlayer.current.reload(options.videoUrl, function (currentTime, paused) {
+        options.reload_currentTime = currentTime;
+    });
+
+    callback();
 }
 
 export default initHtml5CtrlEvents;

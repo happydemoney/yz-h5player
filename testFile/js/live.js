@@ -175,7 +175,7 @@ function antSwitch() {
                             }
                         },
                         screenshotsSetting: {
-                            displayState: true, // 显示状态 - true / false
+                            displayState: false, // 显示状态 - true / false
                             serviceUrl: 'http://127.0.0.1:8080/videoTest/flv/Screenshots', // 截图存放服务器地址
                             suffix: '.jpg', // 默认后缀格式为 .jpg
                             prefix: 'myvideo', // 默认前缀名称为 myvideo
