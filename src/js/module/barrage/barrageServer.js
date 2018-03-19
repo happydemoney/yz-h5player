@@ -1,5 +1,5 @@
 /* 
- * Barrage 弹幕相关操作 
+ * Barrage 弹幕服务(node.js)交互类
  * 依赖包: socket.io.js
  **/
 import io from 'io';

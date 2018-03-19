@@ -160,17 +160,17 @@ definitionSetting: {
     }]
 }
 ```
-*   adsSetting：广告设置 (adsActive:Boolean,beginning:Object,pause:Object,ending:Object)
+*   adSetting：广告设置 (adActive:Boolean,beginning:Object,pause:Object,ending:Object)
 
-    adsActive: 广告开启/关闭(true/false)
+    adActive: 广告开启/关闭(true/false)
     beginning: 片头广告
     pause: 暂停广告
     ending: 片尾广告
 
 ```javascript
 // 广告设置 - 片头、暂停、片尾
-adsSetting: {
-    adsActive: true, // 激活状态
+adSetting: {
+    adActive: true, // 激活状态
     beginning: {
         timeLength: 0, //片头广告总时长
         source: [], // 一般为短视频 10~60秒

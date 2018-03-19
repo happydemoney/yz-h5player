@@ -108,8 +108,8 @@ function antSwitch() {
                             skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
                         },
                         // 广告设置 - 片头、暂停、片尾
-                        adsSetting: {
-                            adsActive: false, // 激活状态
+                        adSetting: {
+                            adActive: false, // 激活状态
                             /*
                             beginning: {
                                 timeLength: 15, //广告总时长

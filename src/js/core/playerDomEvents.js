@@ -9,6 +9,8 @@ import QRCode from 'qrcode';
 import _ from '../utils/common.js';    // 类似underscore功能函数
 import { secondToTime, fullscreenElement, showError } from '../utils/util.js';
 
+import { updateBarrageData } from '../module/barrage/barrageClient.js';
+
 let Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
 function initHtml5CtrlEvents(options, h5player) {
@@ -65,8 +67,8 @@ function initHtml5CtrlEvents(options, h5player) {
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-volume', function () {
         h5player.muted();
         // 存在广告播放器且正在播放广告
-        if (adsPlayer && adsPlayer.totalSeconds > 0) {
-            adsPlayer.muted();
+        if (options.adPlayer && options.adPlayer.totalSeconds > 0) {
+            options.adPlayer.muted();
         }
     });
 
@@ -308,35 +310,35 @@ function initHtml5CtrlEvents(options, h5player) {
         }
 
         if (!$this.hasClass('active')) {
-            initBarrageStyle();
+            initBarrageStyle(options);
             $barrageControl.addClass('active');
             $this.addClass('active');
 
-            if (barrageControl.timeoutTime > 0) {
+            if (options.barrageControl.timeoutTime > 0) {
                 $this.addClass('disabled');
-                // 延时 barrageControl.timeoutTime 开启弹幕切换
+                // 延时 options.barrageControl.timeoutTime 开启弹幕切换
                 setTimeout(function () {
                     $this.removeClass('disabled');
-                }, barrageControl.timeoutTime);
+                }, options.barrageControl.timeoutTime);
             }
 
-            barrageControl.isOpen = true;
-            updateBarrageData('open');
+            options.barrageControl.isOpen = true;
+            updateBarrageData({ methodName: 'open', options: options });
         } else {
             $barrageControl.removeClass('active');
             $this.removeClass('active');
 
-            if (barrageControl.timeoutTime > 0) {
+            if (options.barrageControl.timeoutTime > 0) {
                 $this.addClass('disabled');
-                // 延时 barrageControl.timeoutTime 开启弹幕切换
+                // 延时 options.barrageControl.timeoutTime 开启弹幕切换
                 setTimeout(function () {
                     $this.removeClass('disabled');
-                }, barrageControl.timeoutTime);
+                }, options.barrageControl.timeoutTime);
             }
 
             $h5playerBarrageWrap.empty();
-            barrageControl.isOpen = false;
-            updateBarrageData('close');
+            options.barrageControl.isOpen = false;
+            updateBarrageData({ methodName: 'close', options: options });
         }
     });
     // barrageSend
@@ -395,8 +397,8 @@ function initHtml5CtrlEvents(options, h5player) {
             thisValue = $this.val();
         h5player.volumeChange(thisValue / 100);
         // 存在广告播放器
-        if (adsPlayer && adsPlayer.totalSeconds > 0) {
-            adsPlayer.volumeChange(thisValue / 100);
+        if (options.adPlayer && options.adPlayer.totalSeconds > 0) {
+            options.adPlayer.volumeChange(thisValue / 100);
         }
         if (isWebkitBrowser) {
             $this.attr('data-process', thisValue);
@@ -412,10 +414,10 @@ function pauseAdsClose() {
 }
 
 //  初始化弹幕动画样式
-function initBarrageStyle() {
+function initBarrageStyle(options) {
 
-    if (!barrageControl.isInited) {
-        barrageControl.isInited = true;
+    if (!options.barrageControl.isInited) {
+        options.barrageControl.isInited = true;
 
         // 弹幕动画完成 - 清除事件
         // Chrome, Safari 和 Opera 代码 - webkitAnimationEnd
@@ -508,9 +510,9 @@ function barrageSend() {
 function updateBarrageDisplay(method) {
     if (method == 'clean') {
         options.barrageContainer.empty();
-    } else if (!barrageControl.isMonitored) {
+    } else if (!options.barrageControl.isMonitored) {
 
-        barrageControl.isMonitored = true;
+        options.barrageControl.isMonitored = true;
         options.barrageSetting.clientObject.messageMonitor(function (receiveMsg) {
 
             if (receiveMsg.length > 0) {
@@ -570,14 +572,14 @@ function barrageSettingSwitch() {
     $barrageWordSetting.toggleClass('active');
 
     if ($barrageWordSetting.hasClass('active')) {
-        barrageControl.settingTimeoutId = setTimeout(function () {
+        options.barrageControl.settingTimeoutId = setTimeout(function () {
             if ($barrageWordSetting.hasClass('active')) {
                 $barrageWordSetting.removeClass('active');
             }
-        }, barrageControl.timeoutTime);
+        }, options.barrageControl.timeoutTime);
     } else {
-        if (typeof barrageControl.settingTimeoutId !== 'undefined') {
-            clearTimeout(barrageControl.settingTimeoutId);
+        if (typeof options.barrageControl.settingTimeoutId !== 'undefined') {
+            clearTimeout(options.barrageControl.settingTimeoutId);
         }
     }
 }
@@ -588,7 +590,7 @@ function barrageSettingPanel(e) {
             Event_timeStamp = e.timeStamp;
             break;
         case 'mouseenter':
-            clearTimeout(barrageControl.settingTimeoutId);
+            clearTimeout(options.barrageControl.settingTimeoutId);
             break;
         case 'mouseleave':
             if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {

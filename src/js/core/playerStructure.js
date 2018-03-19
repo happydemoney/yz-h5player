@@ -31,10 +31,10 @@ function initPlayerStructure(options) {
     // 暂停广告字符串
     let pauseAdsString = '';
 
-    if (options.adsSetting.adsActive && options.adsSetting.pause.source.length > 0) {
+    if (options.adSetting.adActive && options.adSetting.pause.source.length > 0) {
         pauseAdsString += '<div class="h5player-pause-ads-wrap"><div class="h5player-pause-ads"><span class="close"></span>' +
-            '<a target="_blank" href="' + options.adsSetting.pause.link[0] + '">' +
-            '<img src="' + options.adsSetting.pause.source[0] + '" alt="pause-image"/></a>' +
+            '<a target="_blank" href="' + options.adSetting.pause.link[0] + '">' +
+            '<img src="' + options.adSetting.pause.source[0] + '" alt="pause-image"/></a>' +
             '</div></div>';
     }
 
@@ -94,7 +94,7 @@ function initPlayerStructure(options) {
         volumeSlidebarId = 'volumeSlidebar' + '-' + now,
         videoClassName = options.isLive ? 'videoLive' : 'videoOnDemand',
         controlsTag = (options.controls && options.isDefaultControls) ? 'controls' : '',
-        h5playerStatusClass = (options.autoplay && (options.adsSetting.beginning.timeLength === 0 || !options.adsSetting.adsActive)) ? 'h5player-status-playing' : 'h5player-status-paused',
+        h5playerStatusClass = (options.autoplay && (options.adSetting.beginning.timeLength === 0 || !options.adSetting.adActive)) ? 'h5player-status-playing' : 'h5player-status-paused',
         h5playerSkinClass = options.skinSetting.skinName === 'default' ? '' : ' h5player-skin-' + options.skinSetting.skinName,
         timelineTag = '<div class="h5player-ctrl-timeline-container"><span class="current-time">00:00:01</span>/<span class="duration-time">01:30:30</span></div>', // 点播视频显示 - 当前时间 / 视频长度
         // 弹幕主体显示部分
