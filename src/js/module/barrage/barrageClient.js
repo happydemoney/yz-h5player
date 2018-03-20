@@ -5,6 +5,7 @@
 import Barrage from './barrageServer.js';  // 弹幕交互相关
 import { barrageWordStyle } from '../../const/constant.js';
 
+// 弹幕控制对象 - 包含弹幕开启状态、定时器ID、请求延时时间设定
 let barrageControl = {
     isInited: false,      // 弹幕动画样式是否初始化
     isOpen: false,        // 弹幕面板 和 展示 是否开启

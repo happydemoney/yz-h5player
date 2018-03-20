@@ -29,10 +29,10 @@ function initPlayerStructure(options) {
     }
 
     // 暂停广告字符串
-    let pauseAdsString = '';
+    let pauseAdString = '';
 
     if (options.adSetting.adActive && options.adSetting.pause.source.length > 0) {
-        pauseAdsString += '<div class="h5player-pause-ads-wrap"><div class="h5player-pause-ads"><span class="close"></span>' +
+        pauseAdString += '<div class="h5player-pause-ad-wrap"><div class="h5player-pause-ad"><span class="close"></span>' +
             '<a target="_blank" href="' + options.adSetting.pause.link[0] + '">' +
             '<img src="' + options.adSetting.pause.source[0] + '" alt="pause-image"/></a>' +
             '</div></div>';
@@ -148,7 +148,7 @@ function initPlayerStructure(options) {
         videoString = '<div class="videoContainer"><div class="liveContent ' + h5playerStatusClass + h5playerSkinClass + '">' +
             '<video class="' + videoClassName + '" id="' + playerId + '" ' + controlsTag + '>' +
             'Your browser is too old which does not support HTML5 video' +
-            '</video>' + barrageContentString + html5ControlString + pauseAdsString + panelString +
+            '</video>' + barrageContentString + html5ControlString + pauseAdString + panelString +
             '</div>' +
             '</div>';
 

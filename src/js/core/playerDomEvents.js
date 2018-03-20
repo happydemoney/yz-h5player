@@ -10,7 +10,7 @@ import _ from '../utils/common.js';    // 类似underscore功能函数
 import { secondToTime, fullscreenElement, showError } from '../utils/util.js';
 
 // barrageClient
-import { barrageFuncSwitch, updateBarrageData, barrageSend, barrageInput, barrageSettingSwitch, barrageSettingPanel, barrageWordSetting } from '../module/barrage/barrageClient.js';
+import { barrageFuncSwitch, barrageSend, barrageInput, barrageSettingSwitch, barrageSettingPanel, barrageWordSetting } from '../module/barrage/barrageClient.js';
 
 let Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
@@ -54,7 +54,7 @@ function initHtml5CtrlEvents(options, h5player) {
     });
     options.playerContainer.on('click.vp_custom_event', '.h5player-status-paused .h5player-ctrl-bar .btn-play', function () {
         var $videoContainer = options.playerContainer.find('.videoContainer');
-        if ($videoContainer.hasClass('h5player-status-adsPlayer-playing')) {
+        if ($videoContainer.hasClass('h5player-status-adPlayer-playing')) {
             return;
         }
         h5player.play();
@@ -110,7 +110,7 @@ function initHtml5CtrlEvents(options, h5player) {
             },
             $videoContainer = options.playerContainer.find('.videoContainer');
 
-        if ($videoContainer.hasClass('h5player-status-adsPlayer-playing')) {
+        if ($videoContainer.hasClass('h5player-status-adPlayer-playing')) {
             return;
         }
         h5player.progressChange(param);
@@ -183,7 +183,7 @@ function initHtml5CtrlEvents(options, h5player) {
     }
 
     // 暂停广告关闭事件
-    options.playerContainer.on('click.vp_custom_event', '.h5player-pause-ads-wrap .h5player-pause-ads .close', pauseAdsClose);
+    options.playerContainer.on('click.vp_custom_event', '.h5player-pause-ad-wrap .h5player-pause-ad .close', pauseAdClose);
 
     // 开关灯/分享相关事件
     // 开关灯 - lightSwitch
@@ -370,11 +370,11 @@ function initHtml5CtrlEvents(options, h5player) {
     });
 }
 
-function pauseAdsClose() {
+function pauseAdClose() {
     var $this = $(this),
-        $pauseAdsWrap = $this.parents('.h5player-pause-ads-wrap');
+        $pauseAdWrap = $this.parents('.h5player-pause-ad-wrap');
 
-    $pauseAdsWrap.removeClass('active');
+    $pauseAdWrap.removeClass('active');
 }
 
 // 清晰度切换

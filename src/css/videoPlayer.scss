@@ -263,7 +263,7 @@ $wordColor-green:  #22ac38;
             &.active{
                 background-position: 0 -90px;
             }
-            .h5player-status-adsPlayer-playing &{
+            .h5player-status-adPlayer-playing &{
                 @include translucent;
                 cursor: default;
             }
@@ -302,7 +302,7 @@ $wordColor-green:  #22ac38;
             &:hover{
                 background-position:-30px 0;
 
-                .h5player-status-adsPlayer-playing &{
+                .h5player-status-adPlayer-playing &{
                     background-position: 0 0;
                 }
             }
@@ -313,7 +313,7 @@ $wordColor-green:  #22ac38;
                 &:hover{
                     background-position: -69px -81px;
 
-                    .h5player-status-adsPlayer-playing & {
+                    .h5player-status-adPlayer-playing & {
                         background-position: -92px -81px;
                     }
                 }
@@ -365,7 +365,7 @@ $wordColor-green:  #22ac38;
                 }
             }
 
-            .h5player-status-adsPlayer-playing &{
+            .h5player-status-adPlayer-playing &{
                 @include translucent;
                 cursor: default;
             }
@@ -472,7 +472,7 @@ $wordColor-green:  #22ac38;
             font-size: 12px;
             box-sizing: border-box;
 
-            .h5player-status-adsPlayer-playing &{
+            .h5player-status-adPlayer-playing &{
                 @include translucent;
                 cursor: default;
             }
@@ -498,7 +498,7 @@ $wordColor-green:  #22ac38;
                         color: $skin-color-main-concise;
                     }
                 }
-                .h5player-status-adsPlayer-playing &{
+                .h5player-status-adPlayer-playing &{
                     color: #fff;
                 }
             }
@@ -1113,8 +1113,8 @@ $wordColor-green:  #22ac38;
     }
 }
 
-/* html5-ads-player */
-.html5-ads-player{
+/* html5-ad-player */
+.html5-ad-player{
     position: absolute;
     top: 0;
     left: 0;
@@ -1136,7 +1136,7 @@ $wordColor-green:  #22ac38;
         }
     }
 
-    .html5-ads-countDown{
+    .html5-ad-countDown{
         position: absolute;
         top: 20px;
         right: 20px;
@@ -1150,13 +1150,13 @@ $wordColor-green:  #22ac38;
         background-color: rgba(37,37,37,.7);
         z-index: 99;
 
-        .ads-countDown{
+        .ad-countDown{
             color: #ff6e0b;
         }
     }
 }
 
-.html5-ads-link{
+.html5-ad-link{
     position: absolute;
     top: 0;
     left: 0;
@@ -1165,8 +1165,8 @@ $wordColor-green:  #22ac38;
     z-index: 10;
 }
 
-/* h5player-pause-ads */
-.h5player-pause-ads-wrap{
+/* h5player-pause-ad */
+.h5player-pause-ad-wrap{
     pointer-events: none;
     position: absolute;
     top: 0;
@@ -1180,7 +1180,7 @@ $wordColor-green:  #22ac38;
         display: block;
     }
 }
-.h5player-pause-ads{
+.h5player-pause-ad{
     position: absolute;
     top: 50%;
     left: 50%;

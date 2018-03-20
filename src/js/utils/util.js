@@ -1,17 +1,34 @@
 /**
  * 自定义一些功能函数
  */
+// 引入常量模块
+import { videoType, regVideoType } from '../const/constant.js';
+/**
+ * getVideoType - 获取视频类型
+ * @param {String} videoUrl
+ */
+export function getVideoType(videoUrl) {
+    if (regVideoType['rtmp'].test(videoUrl)) {
+        return videoType['rtmp'];
+    } else if (regVideoType['flv'].test(videoUrl)) {
+        return videoType['flv'];
+    } else if (regVideoType['hls'].test(videoUrl)) {
+        return videoType['hls'];
+    } else if (regVideoType['html5'].test(videoUrl)) {
+        return videoType['html5'];
+    }
+}
 /**
  * 时间秒数格式化
  * @param s 时间戳（单位：秒）
  * @returns {*} 格式化后的时分秒
  */
 export function secondToTime(s) {
-    var t = '';
+    let t = '';
     if (s > -1) {
-        var hour = Math.floor(s / 3600);
-        var min = Math.floor(s / 60) % 60;
-        var sec = s % 60;
+        let hour = Math.floor(s / 3600);
+        let min = Math.floor(s / 60) % 60;
+        let sec = s % 60;
 
         if (hour > 0 && hour < 10) {
             t = '0' + hour + ":";
@@ -79,7 +96,7 @@ export function exitFullscreen() {
  * 返回全屏的元素对象，注意：要在用户授权全屏后才能获取全屏的元素，否则 fullscreenEle为null
  */
 export function fullscreenElement() {
-    var fullscreenEle = document.fullscreenElement ||
+    let fullscreenEle = document.fullscreenElement ||
         document.mozFullScreenElement ||
         document.webkitFullscreenElement ||
         document.msFullscreenElement;
@@ -89,7 +106,7 @@ export function fullscreenElement() {
  * 是否是全屏状态
  */
 export function fullscreenEnable() {
-    var isFullscreen = document.fullscreenEnabled ||
+    let isFullscreen = document.fullscreenEnabled ||
         window.fullScreen ||
         document.webkitIsFullScreen ||
         document.msFullscreenEnabled;
