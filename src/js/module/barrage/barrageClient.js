@@ -6,19 +6,18 @@ import Barrage from './barrageServer.js';  // 弹幕交互相关
 import { barrageWordStyle } from '../../const/constant.js';
 
 // 弹幕控制对象 - 包含弹幕开启状态、定时器ID、请求延时时间设定
-let barrageControl = {
+let barrageControl = Object.assign({}, {
     isInited: false,      // 弹幕动画样式是否初始化
     isOpen: false,        // 弹幕面板 和 展示 是否开启
     isMonitored: false,   // 弹幕服务监控是否开启
     intervalTime: 5000,   // 请求延时时间设定 - 5秒
-    intervalId: undefined,// 定时器ID
     timeoutTime: 3000,    // 弹幕开关切换延时/弹幕字体大小及颜色设置面板切换关闭延时 为0时实时切换 默认3000
     settingTimeoutId: undefined // 弹幕字体设置定时器ID
-},
+}),
     Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
 
 // 弹幕开关处理程序
-export function barrageFuncSwitch(element, options, currentTime) {
+export function barrageFuncSwitch(element, options) {
 
     var $this = $(element),
         $thisParent = $this.parent(), // .h5player-ctrl-bar-barrage-container
@@ -47,7 +46,7 @@ export function barrageFuncSwitch(element, options, currentTime) {
         }
 
         barrageControl.isOpen = true;
-        updateBarrageData({ methodName: 'open', options, currentTime });
+        updateBarrageData({ methodName: 'open', options });
     } else {
         $barrageControl.removeClass('active');
         $this.removeClass('active');
@@ -63,16 +62,15 @@ export function barrageFuncSwitch(element, options, currentTime) {
         $h5playerBarrageWrap.empty();
 
         barrageControl.isOpen = false;
-        updateBarrageData({ methodName: 'close', options, currentTime });
+        updateBarrageData({ methodName: 'close', options });
     }
 }
 
 /**
  * 更新弹幕数据
- * @param {methodName, options, currentTime}
+ * @param {methodName, options}
  */
-export function updateBarrageData({ methodName, options, currentTime }) {
-
+export function updateBarrageData({ methodName, options }) {
     switch (methodName) {
         // 打开弹幕
         case 'open':
@@ -100,19 +98,19 @@ export function updateBarrageData({ methodName, options, currentTime }) {
             options.barrageSetting.clientObject = new Barrage(options.isLive); // Barrage.js
             options.barrageSetting.clientObject.connectServer(options.barrageSetting.serverUrl, options.barrageSetting.videoInfo.videoName, options.barrageSetting.videoInfo.videoId);
         }
-        options.barrageSetting.clientObject.getMessageByTime(Math.round(currentTime));
+        options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
         updateBarrageDisplay(options);
 
-        barrageControl.intervalId = setInterval(function () {
-            options.barrageSetting.clientObject.getMessageByTime(Math.round(currentTime));
+        options.barrageIntervalId = setInterval(function () {
+            options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
         }, barrageControl.intervalTime);
     }
 
     // 关闭弹幕
     function _close() {
         updateBarrageDisplay(options, 'clean');
-        clearInterval(barrageControl.intervalId);
-        barrageControl.intervalId = undefined;
+        clearInterval(options.barrageIntervalId);
+        options.barrageIntervalId = undefined;
         // 关闭当前客户端与服务端的连接
         options.barrageSetting.clientObject.closeServer(options.barrageSetting.videoInfo.videoName, options.barrageSetting.videoInfo.videoId);
         // 初始化弹幕交互对象
@@ -123,18 +121,18 @@ export function updateBarrageData({ methodName, options, currentTime }) {
 
     // 暂停后再播放时打开弹幕
     function _play() {
-        if (barrageControl.isOpen && !barrageControl.intervalId) {
-            barrageControl.intervalId = setInterval(function () {
-                options.barrageSetting.clientObject.getMessageByTime(Math.round(currentTime));
+        if (barrageControl.isOpen && !options.barrageIntervalId) {
+            options.barrageIntervalId = setInterval(function () {
+                options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
             }, barrageControl.intervalTime);
         }
     }
 
     // 暂停弹幕
     function _pause() {
-        if (barrageControl.isOpen && barrageControl.intervalId) {
-            clearInterval(barrageControl.intervalId);
-            barrageControl.intervalId = undefined;
+        if (barrageControl.isOpen && options.barrageIntervalId) {
+            clearInterval(options.barrageIntervalId);
+            options.barrageIntervalId = undefined;
         }
     }
 }

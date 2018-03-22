@@ -109,7 +109,7 @@ function antSwitch() {
                         },
                         // 广告设置 - 片头、暂停、片尾
                         adSetting: {
-                            adActive: true, // 激活状态
+                            adActive: false, // 激活状态
                             beginning: {
                                 timeLength: 29, //广告总时长
                                 source: ['http://192.168.1.22/mp4/1513751254948171/87a281b8bd41678c0bfd631a26b517b2/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/6ef3b80f3039c31434fab38189eb2b4c.mp4', 'http://192.168.1.22/mp4/1513751254948171/9177a0cd7a39daca064a3452c1085f01/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/8376ddb496e84125bbb85c85c41d8a7c.mp4'], // 一般为短视频 10~60秒
@@ -201,8 +201,8 @@ function antSwitch() {
         }
     } else {
         var curPlayer = $parentRenderItem.data('player');
-        curPlayer.destroy();
         $parentRenderItem.removeData('player');
+        curPlayer.destroy();
     }
     $this.toggleClass('ant-switch-checked');
 }

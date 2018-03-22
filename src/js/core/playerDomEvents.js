@@ -114,7 +114,7 @@ function initHtml5CtrlEvents(options, h5player) {
             return;
         }
         h5player.progressChange(param);
-        h5player.seeking = true;
+        h5player._seeking = true;
         h5player.pause();
     });
 
@@ -131,7 +131,7 @@ function initHtml5CtrlEvents(options, h5player) {
         options.playerContainer.on('mousemove.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
 
             let contentWidth = $(this).width(),
-                duration = h5player.getDuration(),
+                duration = h5player.duration,
                 offsetX = e.offsetX,
                 curPercent = offsetX / contentWidth,
                 currentSecond = Math.round(curPercent * duration),
@@ -299,10 +299,10 @@ function initHtml5CtrlEvents(options, h5player) {
     // 弹幕相关事件 
     // 弹幕开关处理程序
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-barrage', function () {
-        barrageFuncSwitch(this, options, h5player.getCurrenttime());
+        barrageFuncSwitch(this, options);
     });
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-send', function () {
-        barrageSend(this, options, h5player.getCurrenttime());
+        barrageSend(this, options, h5player.currentTime);
     });
 
     options.playerContainer.on('keydown.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-input', barrageInput);
@@ -324,7 +324,7 @@ function initHtml5CtrlEvents(options, h5player) {
     // document mousemove/mouseup 
     $(document).on('mousemove.vp_custom_event', function (e) {
         // document event
-        if (h5player.seeking) {
+        if (h5player._seeking) {
             e.stopPropagation();
             e.stopImmediatePropagation();
             var $this = $(this),
@@ -342,15 +342,15 @@ function initHtml5CtrlEvents(options, h5player) {
         }
     });
     $(document).on('mouseup.vp_custom_event', function (e) {
-        if (h5player.seeking) {
-            h5player.seeking = false;
+        if (h5player._seeking) {
+            h5player._seeking = false;
             h5player.play();
         }
     });
     $(document).on('webkitfullscreenchange.vp_custom_event mozfullscreenchange.vp_custom_event MSFullscreenChange.vp_custom_event fullscreenchange.vp_custom_event', function () {
         let $videoContainer = options.playerContainer.find('.videoContainer ');
-        if (h5player.fullscreenStatus && $videoContainer.hasClass('h5player-status-fullScreen') && !fullscreenElement()) {
-            h5player.fullscreenStatus = false;
+        if (h5player._fullscreenStatus && $videoContainer.hasClass('h5player-status-fullScreen') && !fullscreenElement()) {
+            h5player._fullscreenStatus = false;
             $videoContainer.removeClass('h5player-status-fullScreen');
         }
     });
@@ -423,10 +423,7 @@ function reloadDefinition(options, newDefinitionText, callback) {
         }
     }
 
-    options.oPlayer.current.reload(options.videoUrl, function (currentTime, paused) {
-        options.reload_currentTime = currentTime;
-    });
-
+    options.playerCurrent.reload();
     callback();
 }
 

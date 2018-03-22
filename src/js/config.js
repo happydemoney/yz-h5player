@@ -1,6 +1,6 @@
 // 默认配置
 class Config {
-    init() {
+    static init() {
         return {
             // 播放器容器
             playerContainer: null,

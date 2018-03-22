@@ -2,12 +2,19 @@
  * 自定义一些功能函数
  */
 // 引入常量模块
-import { videoType, regVideoType } from '../const/constant.js';
+import { videoType } from '../const/constant.js';
 /**
  * getVideoType - 获取视频类型
  * @param {String} videoUrl
  */
 export function getVideoType(videoUrl) {
+    // 视频类型判定正则
+    const regVideoType = {
+        rtmp: /^rtmp:/gi,
+        flv: /\.flv\?|\.flv$/gi,
+        hls: /\.m3u8\?|\.m3u8$/gi,
+        html5: /\.mp4|\.ogg |\.webm/gi
+    };
     if (regVideoType['rtmp'].test(videoUrl)) {
         return videoType['rtmp'];
     } else if (regVideoType['flv'].test(videoUrl)) {
