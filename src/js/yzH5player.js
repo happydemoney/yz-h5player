@@ -154,11 +154,11 @@ var videoPlayer = function (options, oParent) {
         switch (curVideoType) {
             case videoType['flv']:
 
-                playerCur = new FlvPlayer(playerSrc, options);
+                options.playerCurrent = new FlvPlayer(playerSrc, options);
                 break;
             case videoType['hls']:
 
-                playerCur = new HlsPlayer(playerSrc, options.isLive);
+                options.playerCurrent = new HlsPlayer(playerSrc, options.isLive);
                 break;
             default:
                 if (options.isLive) {
@@ -166,19 +166,17 @@ var videoPlayer = function (options, oParent) {
                     return;
                 } else {
 
-                    playerCur = new NativePlayer(playerSrc, options.isLive);
+                    options.playerCurrent = new NativePlayer(playerSrc, options.isLive);
                 }
                 break;
         }
-        playerCur.create();
+        options.playerCurrent.create();
 
-        initHtml5CtrlEvents(options, playerCur);
-
-        options.playerCurrent = playerCur;
+        initHtml5CtrlEvents(options);
 
         // 是否开启VR功能
         if (options.vrSetting.vrSwitch) {
-            vrLaunch(playerSrc); // 启动vrvr
+            vrLaunch(); // 启动vrvr
         }
 
 
@@ -189,7 +187,7 @@ var videoPlayer = function (options, oParent) {
             debug: options.debug,
             container: options.playerContainer.find('.liveContent'),
             vrMode: options.vrSetting.vrMode,
-            videoSource: playerSrc
+            videoSource: options.playerCurrent
         });
 
         vr.init();

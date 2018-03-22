@@ -5,6 +5,8 @@ export const vrTextShow = ['全景', '半景', '小行星', '鱼眼'];
 export const videoType = { rtmp: 'RTMP', flv: 'FLV', hls: 'HLS', html5: 'HTML5' };
 // 快进/退 默认值
 export const seekIncrement = 5;
+// 视频全屏下鼠标隐藏延时时间 - 默认3s
+export const fullscreenHideTimeout = 3000;
 // 弹幕字体颜色和大小设置的默认参数
 export const barrageWordStyle = {
     font: {

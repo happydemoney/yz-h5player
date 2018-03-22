@@ -141,7 +141,7 @@ export function updateBarrageData({ methodName, options }) {
  * 弹幕发送
  * @param {domElement} element
  * @param {Object} options 
- * @param {Object} h5player 
+ * @param {String} currenttime 
  */
 export function barrageSend(element, options, currenttime) {
 

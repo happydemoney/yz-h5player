@@ -1,9 +1,8 @@
 /**
  * 播放器事件和属性定义
  */
-import { secondToTime, launchFullScreen, exitFullscreen } from '../utils/util.js';
-// barrageClient
-import { updateBarrageData } from '../module/barrage/barrageClient.js';
+import { secondToTime } from '../utils/util.js';
+import { seekIncrement } from '../const/constant.js';
 
 import flvjs from 'flvjs';
 import Hls from 'hls';
@@ -51,51 +50,53 @@ class BasePlayer {
         return this.playerSrc.duration;
     }
 
+    get fullscreenStatus() {
+        return this._fullscreenStatus;
+    }
+
+    set fullscreenStatus(status) {
+        this._fullscreenStatus = status;
+    }
+
+    get seeking() {
+        return this._seeking;
+    }
+
+    set seeking(seeking) {
+        this._seeking = seeking;
+    }
+
     // 播放器播放
     play() {
 
-        var $videoParent = $(this.playerSrc).parent();
         if (this.playerSrc.paused) {
             this.playerSrc.play();
             this._paused = false;
-
-            $videoParent.addClass('h5player-status-playing').removeClass('h5player-status-paused');
-            updateBarrageData({ methodName: 'play', options: this.options });
-            updatePauseAdStatus(this.options.playerContainer, 'play');
         }
     }
 
     // 播放器暂停
     pause() {
-
-        var $videoParent = $(this.playerSrc).parent();
         if (!this.playerSrc.paused) {
+
             this.playerSrc.pause();
             this._paused = true;
-
-            $videoParent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
-            updateBarrageData({ methodName: 'pause', options: this.options });
-            updatePauseAdStatus(this.options.playerContainer, 'pause');
         }
     }
 
-    // 播放器静音
-    muted() {
-        var $videoParent = $(this.playerSrc).parent();
-        if (this.playerSrc.muted) {
-            this.playerSrc.muted = false;
-            $videoParent.removeClass('h5player-status-muted');
-        } else {
-            this.playerSrc.muted = true;
-            $videoParent.addClass('h5player-status-muted');
-        }
+    get muted() {
+        return this.playerSrc.muted;
+    }
+
+    set muted(muted) {
+        this.playerSrc.muted = muted;
     }
 
     // 播放器 声音调节
     volumeChange(volumeValue) {
         this.playerSrc.volume = volumeValue;
-        if (this.playerSrc.muted) {
-            this.muted();
+        if (this.muted) {
+            this.muted = false;
         }
     }
 
@@ -130,24 +131,10 @@ class BasePlayer {
         this.playerSrc.playbackRate = playbackspeed;
     }
 
-    // 播放器全屏
-    fullscreen() {
-        var $videoParent = $(this.playerSrc).parents('.videoContainer');
-        if (!$videoParent.hasClass('h5player-status-fullScreen')) {
-            launchFullScreen($videoParent.get(0));
-            $videoParent.addClass('h5player-status-fullScreen');
-            this.fullscreenStatus = true;
-        } else {
-            exitFullscreen();
-            $videoParent.removeClass('h5player-status-fullScreen');
-            this.fullscreenStatus = false;
-        }
-    }
-
     // 当浏览器已加载音频/视频的元数据时
     onloadedmetadata() {
         if (this._reloadCurrentTime > 0) {
-            this.playerSrc.currentTime = this._reloadCurrentTime;
+            this.currentTime = this._reloadCurrentTime;
             this._reloadCurrentTime = 0;
         }
     }
@@ -180,7 +167,7 @@ class BasePlayer {
         if (!this.options.adSetting.adActive && !this.options.beginningAdLoaded || this.options.adSetting.beginning.timeLength === 0) {
             this.options.beginningAdLoaded = true;
         }
-        if (this.options.autoplay && !this._seeking && this.options.beginningAdLoaded && !this._paused) {
+        if (this.options.autoplay && !this.seeking && this.options.beginningAdLoaded && !this._paused) {
             this.playerSrc.play();
         }
     }
@@ -191,8 +178,8 @@ class BasePlayer {
     }
 
     // 视频数据加载进度更新 - buffered
-    onprogress(e) {
-        var currentTime = this.playerSrc.currentTime,
+    onprogress(callback = function () { }) {
+        let currentTime = this.playerSrc.currentTime,
             buffered = this.playerSrc.buffered,
             nearLoadedTime = 0;
         for (var i = 0; i < buffered.length; i++) {
@@ -202,27 +189,34 @@ class BasePlayer {
                 nearLoadedTime = currentTime + 1;
             }
         }
-        var param = {
+        /*
+        callback({
+            loadedTime: nearLoadedTime
+        });
+        */
+
+        let param = {
             loadedTime: nearLoadedTime
         };
         this.progressChange(param);
     }
 
-    progressChange(oTime) {
+    progressChange(param) {
 
-        var $progressPlay = this.options.playerContainer.find('.h5player-progress-play'),
+        let $progressPlay = this.options.playerContainer.find('.h5player-progress-play'),
             $progressBtnScrubber = this.options.playerContainer.find('.h5player-progress-btn-scrubber'),
             $progressLoad = this.options.playerContainer.find('.h5player-progress-load'),
-            duration = this.playerSrc.duration,
-            currentTime = oTime.currentTime,
-            currentTimePercent = oTime.currentTimePercent,
-            loadedTime = oTime.loadedTime,
-            isSeek = oTime.isSeek;
+            loadedTime = param.loadedTime,
+            isSeek = param.isSeek;
+
+        let currentTimePercent = param.currentTimePercent,
+            currentTime = param.currentTime,
+            duration = this.duration;
 
         if (currentTimePercent) {
             currentTime = Math.round(currentTimePercent * duration);
             if (isSeek) {
-                this.playerSrc.currentTime = currentTime;
+                this.currentTime = currentTime;
             }
         }
 
@@ -245,7 +239,8 @@ class BasePlayer {
         }
     }
     // 视频进度更新 - currentTime
-    ontimeupdate(e) {
+    ontimeupdate() {
+
         var currentTime = this.playerSrc.currentTime,
             param = {
                 currentTime: currentTime
@@ -512,31 +507,5 @@ export class NativePlayer extends BasePlayer {
         this.playerSrc.src = '';
 
         this.playerSrc.src = this.options.videoUrl;
-    }
-}
-
-function updatePauseAdStatus(playerContainer, methodName) {
-    let $pauseAdWrap = playerContainer.find('.h5player-pause-ad-wrap');
-    switch (methodName) {
-        // 暂停后再播放时打开弹幕
-        case 'play':
-            _play();
-            break;
-        // 暂停弹幕
-        case 'pause':
-            _pause();
-            break;
-        default:
-            break;
-    }
-    function _play() {
-        if ($pauseAdWrap.hasClass('active')) {
-            $pauseAdWrap.removeClass('active');
-        }
-    }
-    function _pause() {
-        if (!$pauseAdWrap.hasClass('active')) {
-            $pauseAdWrap.addClass('active');
-        }
     }
 }

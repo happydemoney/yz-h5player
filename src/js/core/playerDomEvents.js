@@ -2,71 +2,70 @@
  * 绑定H5播放控制器的相关dom事件
  */
 // 引入常量模块
-import { shareIcon } from '../const/constant.js';
+import { shareIcon, fullscreenHideTimeout } from '../const/constant.js';
 import QRCode from 'qrcode';
 
 // util function
 import _ from '../utils/common.js';    // 类似underscore功能函数
-import { secondToTime, fullscreenElement, showError } from '../utils/util.js';
+import { secondToTime, fullscreenElement, launchFullScreen, exitFullscreen, showError } from '../utils/util.js';
 
 // barrageClient
 import { barrageFuncSwitch, barrageSend, barrageInput, barrageSettingSwitch, barrageSettingPanel, barrageWordSetting } from '../module/barrage/barrageClient.js';
 
-let Event_timeStamp; // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
+// barrageClient
+import { updateBarrageData } from '../module/barrage/barrageClient.js';
 
-function initHtml5CtrlEvents(options, h5player) {
-    let timeoutId = undefined,
-        isWebkitBrowser = /webkit/gi.test(navigator.userAgent);
+let Event_timeStamp, // 事件时间戳 - 主要解决chrome下mouseout mouseleave被click意外触发的问题
+    timeoutId = undefined,
+    isWebkitBrowser = /webkit/gi.test(navigator.userAgent);
+
+function initHtml5CtrlEvents(options) {
+
+    // 1.onprogress
+
+    // 2.
 
     options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event ', '.videoContainer', function (e) {
-        var $this = $(this);
-        switch (e.type) {
-            case 'mouseup':
-                Event_timeStamp = e.timeStamp;
-                break;
-            case 'mouseenter':
-                $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
-                break;
-            case 'mouseleave':
-                if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
-                    $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
-                }
-                break;
-        }
-    });
-    // 全屏状态用户鼠标停留超过2s后关闭控制显示条，移动鼠标立即显示控制条
-    options.playerContainer.on('mousemove.vp_custom_event', '.h5player-status-fullScreen', function () {
-        let $this = $(this);
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
-        }
-        timeoutId = setTimeout(function () {
-            $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
-        }, options.h5playerSetting.fullscreenHideTimeout);
+        videoContainerMouseEvent(this, e.type, e.timeStamp);
     });
 
+    // 全屏状态用户鼠标停留超过2s后关闭控制显示条，移动鼠标立即显示控制条
+    options.playerContainer.on('mousemove.vp_custom_event', '.h5player-status-fullScreen', fullScreenMouseMove);
+
+    // 视频暂停
     options.playerContainer.on('click.vp_custom_event', '.h5player-status-playing .h5player-ctrl-bar .btn-play', function (e) {
         e.stopPropagation();
         e.preventDefault();
         e.stopImmediatePropagation();
-        h5player.pause();
+
+        playerPause(options);
     });
+
+    // 视频播放
     options.playerContainer.on('click.vp_custom_event', '.h5player-status-paused .h5player-ctrl-bar .btn-play', function () {
         var $videoContainer = options.playerContainer.find('.videoContainer');
         if ($videoContainer.hasClass('h5player-status-adPlayer-playing')) {
             return;
         }
-        h5player.play();
+
+        playerPlay(options);
     });
+
+    // 视频刷新
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-refresh', function () {
-        h5player.refresh();
+        options.playerCurrent.refresh();
     });
+
+    // 全屏
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-fullScreen', function () {
-        h5player.fullscreen();
+
+        playerFullscreen(options);
     });
+
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-volume', function () {
-        h5player.muted();
+
+        playerMuted(options);
+
         // 存在广告播放器且正在播放广告
         if (options.adPlayer && options.adPlayer.totalSeconds > 0) {
             options.adPlayer.muted();
@@ -80,21 +79,9 @@ function initHtml5CtrlEvents(options, h5player) {
 
     // 视频进度条容器 鼠标按下事件 - // 时间进度条鼠标事件
     options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
-        var $videoContainer = options.playerContainer.find('.videoContainer');
-        switch (e.type) {
-            case 'mouseup':
-                Event_timeStamp = e.timeStamp;
-                break;
-            case 'mouseenter':
-                $videoContainer.hasClass('h5player-status-progress-hover') ? '' : $videoContainer.addClass('h5player-status-progress-hover');
-                break;
-            case 'mouseleave':
-                if (!Event_timeStamp || (e.timeStamp - Event_timeStamp > 10)) {
-                    $videoContainer.hasClass('h5player-status-progress-hover') ? $videoContainer.removeClass('h5player-status-progress-hover') : '';
-                }
-                break;
-        }
+        progressBarContainerMouseEvent(options, e.type, e.timeStamp);
     });
+
     // 视频进度条容器 鼠标按下事件
     options.playerContainer.on('mousedown.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
         e.stopPropagation();
@@ -113,10 +100,15 @@ function initHtml5CtrlEvents(options, h5player) {
         if ($videoContainer.hasClass('h5player-status-adPlayer-playing')) {
             return;
         }
-        h5player.progressChange(param);
-        h5player._seeking = true;
-        h5player.pause();
+        options.playerCurrent.progressChange(param);
+        options.playerCurrent.seeking = true;
+
+        playerPause(options);
     });
+
+    function progressBarContainerMouseDown() {
+
+    }
 
     if (options.screenshotsSetting.displayState) {
 
@@ -131,7 +123,7 @@ function initHtml5CtrlEvents(options, h5player) {
         options.playerContainer.on('mousemove.vp_custom_event', '.h5player-live-ctrl .h5player-progress-bar-container', function (e) {
 
             let contentWidth = $(this).width(),
-                duration = h5player.duration,
+                duration = options.playerCurrent.duration,
                 offsetX = e.offsetX,
                 curPercent = offsetX / contentWidth,
                 currentSecond = Math.round(curPercent * duration),
@@ -302,7 +294,7 @@ function initHtml5CtrlEvents(options, h5player) {
         barrageFuncSwitch(this, options);
     });
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-send', function () {
-        barrageSend(this, options, h5player.currentTime);
+        barrageSend(this, options, options.playerCurrent.currentTime);
     });
 
     options.playerContainer.on('keydown.vp_custom_event', '.h5player-ctrl-bar-barrage-control .barrage-input', barrageInput);
@@ -324,7 +316,7 @@ function initHtml5CtrlEvents(options, h5player) {
     // document mousemove/mouseup 
     $(document).on('mousemove.vp_custom_event', function (e) {
         // document event
-        if (h5player._seeking) {
+        if (options.playerCurrent.seeking) {
             e.stopPropagation();
             e.stopImmediatePropagation();
             var $this = $(this),
@@ -338,28 +330,31 @@ function initHtml5CtrlEvents(options, h5player) {
                     isSeek: true
                 };
 
-            h5player.progressChange(param);
+            options.playerCurrent.progressChange(param);
         }
     });
     $(document).on('mouseup.vp_custom_event', function (e) {
-        if (h5player._seeking) {
-            h5player._seeking = false;
-            h5player.play();
+
+        if (options.playerCurrent.seeking) {
+            options.playerCurrent.seeking = false;
+            playerPlay(options);
         }
     });
     $(document).on('webkitfullscreenchange.vp_custom_event mozfullscreenchange.vp_custom_event MSFullscreenChange.vp_custom_event fullscreenchange.vp_custom_event', function () {
+
         let $videoContainer = options.playerContainer.find('.videoContainer ');
-        if (h5player._fullscreenStatus && $videoContainer.hasClass('h5player-status-fullScreen') && !fullscreenElement()) {
-            h5player._fullscreenStatus = false;
+        if (options.playerCurrent.fullscreenStatus && $videoContainer.hasClass('h5player-status-fullScreen') && !fullscreenElement()) {
+            options.playerCurrent.fullscreenStatus = false;
             $videoContainer.removeClass('h5player-status-fullScreen');
         }
     });
 
     // input range - input事件在IE10尚不支持，可以使用change替代
     options.playerContainer.on('input.vp_custom_event change.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-volume-slidebar', function () {
+
         let $this = $(this),
             thisValue = $this.val();
-        h5player.volumeChange(thisValue / 100);
+        options.playerCurrent.volumeChange(thisValue / 100);
         // 存在广告播放器
         if (options.adPlayer && options.adPlayer.totalSeconds > 0) {
             options.adPlayer.volumeChange(thisValue / 100);
@@ -368,6 +363,97 @@ function initHtml5CtrlEvents(options, h5player) {
             $this.attr('data-process', thisValue);
         }
     });
+}
+
+function videoContainerMouseEvent(element, eType, eTimeStamp) {
+    var $this = $(element);
+    switch (eType) {
+        case 'mouseup':
+            Event_timeStamp = eTimeStamp;
+            break;
+        case 'mouseenter':
+            $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
+            break;
+        case 'mouseleave':
+            if (!Event_timeStamp || (eTimeStamp - Event_timeStamp > 10)) {
+                $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
+            }
+            break;
+    }
+}
+function fullScreenMouseMove() {
+    let $this = $(this);
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        $this.hasClass('h5player-status-controls-in') ? '' : $this.addClass('h5player-status-controls-in');
+    }
+    timeoutId = setTimeout(function () {
+        $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
+    }, fullscreenHideTimeout);
+}
+function playerPause(options) {
+
+    if (!options.playerCurrent._paused) {
+        var $liveContent = options.playerContainer.find('.liveContent');
+        $liveContent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
+        updateBarrageData({ methodName: 'pause', options });
+        updatePauseAdStatus(options.playerContainer, 'pause');
+        options.playerCurrent.pause();
+    }
+}
+
+function playerPlay(options) {
+
+    if (options.playerCurrent._paused) {
+        var $liveContent = options.playerContainer.find('.liveContent');
+        $liveContent.addClass('h5player-status-playing').removeClass('h5player-status-paused');
+        updateBarrageData({ methodName: 'play', options });
+        updatePauseAdStatus(options.playerContainer, 'play');
+        options.playerCurrent.play();
+    }
+}
+
+function playerFullscreen(options) {
+
+    var $videoContainer = options.playerContainer.find('.videoContainer');
+    if (!$videoContainer.hasClass('h5player-status-fullScreen')) {
+        launchFullScreen($videoContainer.get(0));
+        $videoContainer.addClass('h5player-status-fullScreen');
+        options.playerCurrent.fullscreenStatus = true;
+    } else {
+        exitFullscreen();
+        $videoContainer.removeClass('h5player-status-fullScreen');
+        options.playerCurrent.fullscreenStatus = false;
+    }
+}
+
+function playerMuted(options) {
+
+    var $liveContent = options.playerContainer.find('.liveContent');
+    if (options.playerCurrent.muted) {
+        options.playerCurrent.muted = false;
+        $liveContent.removeClass('h5player-status-muted');
+    } else {
+        options.playerCurrent.muted = true;
+        $liveContent.addClass('h5player-status-muted');
+    }
+}
+
+function progressBarContainerMouseEvent(options, eType, eTimeStamp) {
+    var $videoContainer = options.playerContainer.find('.videoContainer');
+    switch (eType) {
+        case 'mouseup':
+            Event_timeStamp = eTimeStamp;
+            break;
+        case 'mouseenter':
+            $videoContainer.hasClass('h5player-status-progress-hover') ? '' : $videoContainer.addClass('h5player-status-progress-hover');
+            break;
+        case 'mouseleave':
+            if (!Event_timeStamp || (eTimeStamp - Event_timeStamp > 10)) {
+                $videoContainer.hasClass('h5player-status-progress-hover') ? $videoContainer.removeClass('h5player-status-progress-hover') : '';
+            }
+            break;
+    }
 }
 
 function pauseAdClose() {
@@ -425,6 +511,37 @@ function reloadDefinition(options, newDefinitionText, callback) {
 
     options.playerCurrent.reload();
     callback();
+}
+
+/**
+ * 更新暂停广告显示和隐藏
+ * @param {*} playerContainer 
+ * @param {*} methodName 
+ */
+function updatePauseAdStatus(playerContainer, methodName) {
+    let $pauseAdWrap = playerContainer.find('.h5player-pause-ad-wrap');
+    switch (methodName) {
+        // 暂停后再播放时打开弹幕
+        case 'play':
+            _play();
+            break;
+        // 暂停弹幕
+        case 'pause':
+            _pause();
+            break;
+        default:
+            break;
+    }
+    function _play() {
+        if ($pauseAdWrap.hasClass('active')) {
+            $pauseAdWrap.removeClass('active');
+        }
+    }
+    function _pause() {
+        if (!$pauseAdWrap.hasClass('active')) {
+            $pauseAdWrap.addClass('active');
+        }
+    }
 }
 
 export default initHtml5CtrlEvents;
