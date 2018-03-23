@@ -19,7 +19,7 @@ let Event_timeStamp, // 事件时间戳 - 主要解决chrome下mouseout mouselea
     timeoutId = undefined,
     isWebkitBrowser = /webkit/gi.test(navigator.userAgent);
 
-function initHtml5CtrlEvents(options) {
+export function initHtml5CtrlEvents(options) {
 
     let playerContainer = options.playerContainer,
         playerCurrent = options.playerCurrent,
@@ -429,7 +429,7 @@ function fullScreenMouseMove() {
         $this.hasClass('h5player-status-controls-in') ? $this.removeClass('h5player-status-controls-in') : '';
     }, fullscreenHideTimeout);
 }
-function playerPause(options) {
+export function playerPause(options) {
 
     if (!options.playerCurrent.playerSrc.paused) {
         var $liveContent = options.playerContainer.find('.liveContent');
@@ -541,7 +541,7 @@ function playerEnded(playerContainer) {
     $liveContent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
 }
 
-function playerPlay(options) {
+export function playerPlay(options) {
 
     if (options.playerCurrent.playerSrc.paused) {
         var $liveContent = options.playerContainer.find('.liveContent');
@@ -566,7 +566,7 @@ function playerFullscreen(options) {
     }
 }
 
-function playerMuted(options) {
+export function playerMuted(options) {
 
     var $liveContent = options.playerContainer.find('.liveContent');
     if (options.playerCurrent.muted) {
@@ -682,5 +682,3 @@ function updatePauseAdStatus(playerContainer, methodName) {
         }
     }
 }
-
-export default initHtml5CtrlEvents;

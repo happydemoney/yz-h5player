@@ -166,7 +166,6 @@ class BasePlayer {
     }
 
     destroy() {
-
         this.playerCur.destroy();
 
         this.playerSrc.onloadeddata = null;

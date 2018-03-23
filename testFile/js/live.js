@@ -8,9 +8,9 @@ $(function () {
 
     $('.player-control').on('click', 'input[name="control-play"]', function () {
         console.log('play');
-        playerNew.play();
-
+        //playerNew.play();
         console.log($.fn.videoPlayer);
+        $.fn.videoPlayer.play();
     });
 
     $('.player-control').on('click', 'input[name="control-pause"]', function () {
@@ -43,7 +43,6 @@ $(function () {
         playerNew.playbackspeedChange(playbackspeedVal);
     });
 
-    //$.fn.fullpage.moveSectionUp();
 });
 
 function antSwitch() {

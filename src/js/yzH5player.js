@@ -24,7 +24,7 @@ import { getVideoType } from './utils/util.js';
 
 // core -- create dom structure,bind dom event
 import initPlayerStructure from './core/playerStructure.js';
-import initHtml5CtrlEvents from './core/playerDomEvents.js';
+import { initHtml5CtrlEvents, playerPlay, playerMuted, playerPause } from './core/playerDomEvents.js';
 
 // core player Class
 import { FlvPlayer, HlsPlayer, NativePlayer } from './core/basePlayer.js';
@@ -120,29 +120,6 @@ var videoPlayer = function (options, oParent) {
         options.adPlayer.init();
     }
 
-    // 刷新播放器
-    function refreshPlayer() {
-        if (!options.videoUrl) {
-            if (options.isLive) {
-                alert('直播流为空！');
-            }
-            else {
-                alert('视频地址未传入！');
-            }
-            return;
-        }
-        // 根据播放器类型执行对应的播放方法
-        switch (options.playerType) {
-            case 'Html5':
-                //Html5Player('refresh');
-                options.playerCurrent.refresh();
-                break;
-            case 'Flash':
-                FlashPlayer('refresh');
-                break;
-            default: break;
-        }
-    }
 
     // HTML5播放器    
     function Html5Player() {
@@ -224,52 +201,72 @@ var videoPlayer = function (options, oParent) {
         };
     }
 
-    // destroy
-    function destroy() {
-
-        options.playerCurrent.destroy();
-        options.playerCurrent = null;
-
-        // 广告播放器
-        if (options.adPlayer) {
-            options.adPlayer.destroy();
-            options.adPlayer = null;
+    /**
+     * 返回接口类 - 供插件实例调用
+     */
+    class ReFunc {
+        static play() {
+            //options.playerCurrent.play();
+            playerPlay(options);
         }
-
-        // 弹幕定时器
-        if (options.barrageIntervalId) {
-            clearInterval(options.barrageIntervalId);
+        static pause() {
+            //options.playerCurrent.pause();
+            playerPause(options);
         }
+        static muted() {
+            //options.playerCurrent.muted()
+            playerMuted(options);
+        }
+        static seek(seekVal) {
+            options.playerCurrent.seek(seekVal);
+        }
+        static seekForward(forwardVal) {
+            options.playerCurrent.seekForward(forwardVal);
+        }
+        static seekBackward(backwardVal) {
+            options.playerCurrent.seekBackward(backwardVal);
+        }
+        static playbackspeedChange(playbackspeed) {
+            options.playerCurrent.playbackspeedChange(playbackspeed);;
+        }
+        static destroy() {
+            options.playerCurrent.destroy();
+            options.playerCurrent = null;
 
-        // 事件销毁
-        //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
-        options.playerContainer.off('.vp_custom_event');
-        //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
-        options.playerContainer.find('.videoContainer').remove();
+            // 广告播放器
+            if (options.adPlayer) {
+                options.adPlayer.destroy();
+                options.adPlayer = null;
+            }
+
+            // 弹幕定时器
+            if (options.barrageIntervalId) {
+                clearInterval(options.barrageIntervalId);
+            }
+
+            // 事件销毁
+            //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
+            options.playerContainer.off('.vp_custom_event');
+            //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
+            options.playerContainer.find('.videoContainer').remove();
+        }
     }
 
+    ReFunc.prototype.version = VERSION;
+
     // 页面只引用一个播放器时的快速调用方法
-    VP.pause = options.playerCurrent.pause; // 暂停
-    VP.play = options.playerCurrent.play; // 播放
-    VP.pause = options.playerCurrent.pause; // 暂停
-    VP.muted = options.playerCurrent.muted; // 静音切换
-    VP.seek = options.playerCurrent.seek; // 视频寻址
-    VP.seekForward = options.playerCurrent.seekForward; // 前进
-    VP.seekBackward = options.playerCurrent.seekBackward; // 后退
-    VP.playbackspeedChange = options.playerCurrent.playbackspeedChange;
+    VP.version = VERSION; // 播放
+    VP.play = ReFunc.play; // 播放
+    VP.pause = ReFunc.pause; // 暂停
+    VP.muted = ReFunc.muted; // 静音切换
+    VP.seek = ReFunc.seek; // 视频寻址
+    VP.seekForward = ReFunc.seekForward; // 前进
+    VP.seekBackward = ReFunc.seekBackward; // 后退
+    VP.playbackspeedChange = ReFunc.playbackspeedChange;
+    VP.destroy = ReFunc.destroy;
 
     // 返回函数
-    return {
-        version: VERSION,
-        destroy: destroy,
-        play: options.playerCurrent.play, // 播放
-        pause: options.playerCurrent.pause, // 暂停
-        muted: options.playerCurrent.muted, // 静音切换
-        seek: options.playerCurrent.seek, // 视频寻址
-        seekForward: options.playerCurrent.seekForward, // 前进
-        seekBackward: options.playerCurrent.seekBackward, // 后退
-        playbackspeedChange: options.playerCurrent.playbackspeedChange
-    };
+    return ReFunc;
 };// end of videoPlayer
 
 $.fn[pluginName] = function (options) {
