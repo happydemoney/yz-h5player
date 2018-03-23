@@ -140,143 +140,29 @@ class BasePlayer {
     }
 
     // 当浏览器已加载音频/视频的当前帧时
-    onloadeddata() {
-        this.playerSrc.oncanplay = () => {
-            this.oncanplay();
-        }
-        // 直播状态不进行之后事件绑定
-        if (this.options.isLive) {
-            return;
-        }
-        this.initTimeline();
-        this.playerSrc.onprogress = () => {
-            this.onprogress();
-        }
-        this.playerSrc.ontimeupdate = () => {
-            this.ontimeupdate();
-        }
-        this.playerSrc.ondurationchange = () => {
-            this.ondurationchange();
-        }
+    onloadeddata(callback = function () { }) {
+        callback();
         this.playerSrc.onended = () => {
             this.onended();
         };
     }
 
-    oncanplay() {
-        if (!this.options.adSetting.adActive && !this.options.beginningAdLoaded || this.options.adSetting.beginning.timeLength === 0) {
-            this.options.beginningAdLoaded = true;
-        }
-        if (this.options.autoplay && !this.seeking && this.options.beginningAdLoaded && !this._paused) {
-            this.playerSrc.play();
-        }
+
+    get buffered() {
+        return this.playerSrc.buffered;
     }
 
-    initTimeline() {
-        this.currentTimeChanage();
-        this.durationTimeChanage();
-    }
-
-    // 视频数据加载进度更新 - buffered
-    onprogress(callback = function () { }) {
-        let currentTime = this.playerSrc.currentTime,
-            buffered = this.playerSrc.buffered,
-            nearLoadedTime = 0;
-        for (var i = 0; i < buffered.length; i++) {
-            if (buffered.end(i) >= currentTime && buffered.start(i) <= currentTime) {
-                nearLoadedTime = buffered.end(i);
-            } else {
-                nearLoadedTime = currentTime + 1;
-            }
-        }
-        /*
-        callback({
-            loadedTime: nearLoadedTime
-        });
-        */
-
-        let param = {
-            loadedTime: nearLoadedTime
-        };
-        this.progressChange(param);
-    }
-
-    progressChange(param) {
-
-        let $progressPlay = this.options.playerContainer.find('.h5player-progress-play'),
-            $progressBtnScrubber = this.options.playerContainer.find('.h5player-progress-btn-scrubber'),
-            $progressLoad = this.options.playerContainer.find('.h5player-progress-load'),
-            loadedTime = param.loadedTime,
-            isSeek = param.isSeek;
-
-        let currentTimePercent = param.currentTimePercent,
-            currentTime = param.currentTime,
-            duration = this.duration;
-
-        if (currentTimePercent) {
-            currentTime = Math.round(currentTimePercent * duration);
-            if (isSeek) {
-                this.currentTime = currentTime;
-            }
-        }
-
-        if (currentTime) {
-            // 更新播放视频进度
-            $progressPlay.css({
-                width: (currentTime / duration) * 100 + '%'
-            });
-            // 进度条小圆点
-            $progressBtnScrubber.css({
-                left: (currentTime / duration) * 100 + '%'
-            });
-        }
-
-        if (loadedTime) {
-            // 更新加载视频进度
-            $progressLoad.css({
-                width: (loadedTime / duration) * 100 + '%'
-            });
-        }
-    }
-    // 视频进度更新 - currentTime
-    ontimeupdate() {
-
-        var currentTime = this.playerSrc.currentTime,
-            param = {
-                currentTime: currentTime
-            };
-        this.progressChange(param);
-        this.currentTimeChanage();
-    }
-
-    // 视频当前播放位置时间变化事件
-    currentTimeChanage() {
-        var $currentTime = this.options.playerContainer.find('.h5player-ctrl-timeline-container .current-time'),
-            currentTime = this.playerSrc.currentTime,
-            currentTime = secondToTime(Math.round(currentTime));
-
-        $currentTime.text(currentTime);
-    }
-    // 视频持续时间变化事件
-    durationTimeChanage() {
-        var $durationTime = this.options.playerContainer.find('.h5player-ctrl-timeline-container .duration-time'),
-            durationTime = this.playerSrc.duration,
-            durationTime = secondToTime(Math.round(durationTime));
-        $durationTime.text(durationTime);
-    }
-    ondurationchange() {
-        this.durationTimeChanage();
-    }
     // 视频播放到结尾
-    onended() {
-        var $videoParent = $(this.playerSrc).parent();
+    onended(callback = function () { }) {
+
         if (!this.playerSrc.paused) {
             this.pause();
         }
-        $videoParent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
+
         if (this.options.adSetting.adActive) {
             this.options.adPlayer.init();
         }
+        callback();
     }
 
     destroy() {

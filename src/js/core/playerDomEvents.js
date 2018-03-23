@@ -21,9 +21,46 @@ let Event_timeStamp, // 事件时间戳 - 主要解决chrome下mouseout mouselea
 
 function initHtml5CtrlEvents(options) {
 
-    // 1.onprogress
+    let playerContainer = options.playerContainer,
+        playerCurrent = options.playerCurrent,
+        playerSource = playerCurrent.playerSrc,
+        isLive = options.isLive;
 
-    // 2.
+    // onloadeddata
+    playerCurrent.onloadeddata(function () {
+
+        // 1. canplay
+        playerSource.oncanplay = () => {
+            playerCanplay(options);
+        }
+        // 直播状态不进行之后事件绑定
+        if (isLive) {
+            return;
+        }
+
+        playerCurrentTimeChanage({ playerCurrent, playerContainer });
+        playerDurationTimeChanage({ playerCurrent, playerContainer });
+
+        // 2.onprogress
+        playerSource.onprogress = () => {
+
+            playerProgress(playerCurrent, playerContainer);
+        }
+        // 3.ontimeupdate
+        playerSource.ontimeupdate = () => {
+
+            playerTimeupate(playerCurrent, playerContainer);
+        }
+        // 4.ondurationchange
+        playerSource.ondurationchange = () => {
+            //this.ondurationchange();
+            playerDurationTimeChanage({ playerCurrent, playerContainer })
+        }
+        // 5.onended
+        playerCurrent.onended(function () {
+            playerEnded(options.playerContainer);
+        });
+    });
 
     options.playerContainer.on('mouseenter.vp_custom_event mouseleave.vp_custom_event mouseup.vp_custom_event ', '.videoContainer', function (e) {
         videoContainerMouseEvent(this, e.type, e.timeStamp);
@@ -100,7 +137,8 @@ function initHtml5CtrlEvents(options) {
         if ($videoContainer.hasClass('h5player-status-adPlayer-playing')) {
             return;
         }
-        options.playerCurrent.progressChange(param);
+        //options.playerCurrent.progressChange(param);
+        playerProgressChange({ param, playerCurrent: options.playerCurrent, playerContainer: options.playerContainer });
         options.playerCurrent.seeking = true;
 
         playerPause(options);
@@ -223,7 +261,6 @@ function initHtml5CtrlEvents(options) {
             shareString += '<dl class="share-img"><dt>一键分享</dt>';
             optionsArr.forEach(function (element) {
                 if (element === "1") {
-                    //console.log(linksArr[index]);
                     shareString += '<dd><a target="_blank" href="' + linksArr[index].replace(/\$#\$/g, '&') + '" class="' + shareIcon[index] + '"></a></dd>';
                 }
                 index++;
@@ -330,7 +367,8 @@ function initHtml5CtrlEvents(options) {
                     isSeek: true
                 };
 
-            options.playerCurrent.progressChange(param);
+            //options.playerCurrent.progressChange(param);
+            playerProgressChange({ param, playerCurrent: options.playerCurrent, playerContainer: options.playerContainer });
         }
     });
     $(document).on('mouseup.vp_custom_event', function (e) {
@@ -393,7 +431,7 @@ function fullScreenMouseMove() {
 }
 function playerPause(options) {
 
-    if (!options.playerCurrent._paused) {
+    if (!options.playerCurrent.playerSrc.paused) {
         var $liveContent = options.playerContainer.find('.liveContent');
         $liveContent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
         updateBarrageData({ methodName: 'pause', options });
@@ -402,9 +440,110 @@ function playerPause(options) {
     }
 }
 
+// canplay
+function playerCanplay(options) {
+
+    if (!options.adSetting.adActive && !options.beginningAdLoaded || options.adSetting.beginning.timeLength === 0) {
+        options.beginningAdLoaded = true;
+    }
+    if (options.autoplay && !options.playerCurrent.seeking && options.beginningAdLoaded && !options.playerCurrent._paused) {
+        playerPlay(options);
+    }
+
+}
+// 视频数据加载进度更新 - buffered
+function playerProgress(playerCurrent, playerContainer) {
+    let currentTime = playerCurrent.currentTime,
+        buffered = playerCurrent.buffered,
+        nearLoadedTime = 0,
+        param = {
+            loadedTime: nearLoadedTime
+        };
+    for (var i = 0; i < buffered.length; i++) {
+        if (buffered.end(i) >= currentTime && buffered.start(i) <= currentTime) {
+            nearLoadedTime = buffered.end(i);
+        } else {
+            nearLoadedTime = currentTime + 1;
+        }
+    }
+    param.loadedTime = nearLoadedTime;
+    playerProgressChange({ param, playerCurrent, playerContainer });
+}
+
+// 视频进度更新 - currentTime
+function playerTimeupate(playerCurrent, playerContainer) {
+    let param = { currentTime: playerCurrent.currentTime };
+    playerProgressChange({ param, playerCurrent, playerContainer });
+    playerCurrentTimeChanage({ playerCurrent, playerContainer });
+}
+
+// 进度条变化触发
+function playerProgressChange({ param, playerCurrent, playerContainer }) {
+
+    let $progressPlay = playerContainer.find('.h5player-progress-play'),
+        $progressBtnScrubber = playerContainer.find('.h5player-progress-btn-scrubber'),
+        $progressLoad = playerContainer.find('.h5player-progress-load'),
+
+        loadedTime = param.loadedTime,
+        isSeek = param.isSeek,
+        currentTimePercent = param.currentTimePercent,
+        currentTime = param.currentTime,
+
+        duration = playerCurrent.duration;
+
+    if (currentTimePercent) {
+        currentTime = Math.round(currentTimePercent * duration);
+        if (isSeek) {
+            playerCurrent.currentTime = currentTime;
+        }
+    }
+
+    if (currentTime) {
+        // 更新播放视频进度
+        $progressPlay.css({
+            width: (currentTime / duration) * 100 + '%'
+        });
+        // 进度条小圆点
+        $progressBtnScrubber.css({
+            left: (currentTime / duration) * 100 + '%'
+        });
+    }
+
+    if (loadedTime) {
+        // 更新加载视频进度
+        $progressLoad.css({
+            width: (loadedTime / duration) * 100 + '%'
+        });
+    }
+}
+
+// 视频当前播放位置时间变化事件
+function playerCurrentTimeChanage({ playerCurrent, playerContainer }) {
+
+    let $currentTime = playerContainer.find('.h5player-ctrl-timeline-container .current-time'),
+        currentTime = playerCurrent.currentTime,
+        currentTimeText = secondToTime(Math.round(currentTime));
+
+    $currentTime.text(currentTimeText);
+}
+// 视频持续时间变化事件
+function playerDurationTimeChanage({ playerCurrent, playerContainer }) {
+
+    let $durationTime = playerContainer.find('.h5player-ctrl-timeline-container .duration-time'),
+        durationTime = playerCurrent.duration,
+        durationTimeText = secondToTime(Math.round(durationTime));
+
+    $durationTime.text(durationTimeText);
+}
+// 视频结束
+function playerEnded(playerContainer) {
+    var $liveContent = playerContainer.find('.liveContent');
+    $liveContent.addClass('h5player-status-paused').removeClass('h5player-status-playing');
+}
+
 function playerPlay(options) {
 
-    if (options.playerCurrent._paused) {
+    if (options.playerCurrent.playerSrc.paused) {
         var $liveContent = options.playerContainer.find('.liveContent');
         $liveContent.addClass('h5player-status-playing').removeClass('h5player-status-paused');
         updateBarrageData({ methodName: 'play', options });
