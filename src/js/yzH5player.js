@@ -164,7 +164,7 @@ var videoPlayer = function (options, oParent) {
             debug: options.debug,
             container: options.playerContainer.find('.liveContent'),
             vrMode: options.vrSetting.vrMode,
-            videoSource: options.playerCurrent
+            videoSource: options.playerCurrent.playerSrc
         });
 
         vr.init();
