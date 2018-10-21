@@ -11,6 +11,11 @@
 *   开关灯/分享到社交平台（已完成）
 *   视频进度条帧截图（需要使用工具（比如ffmepg）提前把视频的帧截图处理好并提供存放服务器路径）
 
+#   线上展示
+
+    展示地址：https://happydemoney.github.io/
+    代码仓库：https://github.com/happydemoney/happydemoney.github.io
+
 #   Getting start
 
 环境依赖：nodejs ( https://nodejs.org/en/ )
@@ -25,7 +30,7 @@
 
 /* jquery依赖库 */
 <script type="text/javascript" charset="utf-8" src="http://apps.bdimg.com/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type="text/javascript" charset="utf-8" src="dist/js/videoPlayer.js"></script>
+<script type="text/javascript" charset="utf-8" src="dist/videoPlayer.js"></script>
 <script type="text/javascript" charset="utf-8" >
     /* 1. on demand(点播) */
     $('#videoWrap').videoPlayer({
