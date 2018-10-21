@@ -131,17 +131,25 @@ export function updateBarrageData({ methodName, options }) {
             if( !window.io ){
                 loadJsCss( 'lib/socket.io.js', () => {
                     options.barrageSetting.clientObject.connectServer(options.barrageSetting.serverUrl, options.barrageSetting.videoInfo.videoName, options.barrageSetting.videoInfo.videoId);
-                } )
+                    
+                    options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
+                    updateBarrageDisplay(options);
+
+                    options.barrageIntervalId = setInterval(function () {
+                        options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
+                    }, barrageControl.intervalTime);
+                })
             }else{
                 options.barrageSetting.clientObject.connectServer(options.barrageSetting.serverUrl, options.barrageSetting.videoInfo.videoName, options.barrageSetting.videoInfo.videoId);
+                
+                options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
+                updateBarrageDisplay(options);
+
+                options.barrageIntervalId = setInterval(function () {
+                    options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
+                }, barrageControl.intervalTime);
             }
         }
-        options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
-        updateBarrageDisplay(options);
-
-        options.barrageIntervalId = setInterval(function () {
-            options.barrageSetting.clientObject.getMessageByTime(Math.round(options.playerCurrent.currentTime));
-        }, barrageControl.intervalTime);
     }
 
     // 关闭弹幕

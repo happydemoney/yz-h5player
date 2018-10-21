@@ -2,7 +2,7 @@
  * Barrage 弹幕服务(node.js)交互类
  * 依赖包: socket.io.js
  **/
-import io from 'io';
+// import io from 'io';
 
 class Barrage {
     constructor(isLive) {
@@ -120,7 +120,7 @@ class Barrage {
     }
     // 获取视频当前进度的弹幕消息
     getMessageByTime(time) {
-        this.socket.emit('get_msg', time);
+        this.socket && this.socket.emit('get_msg', time);
     }
     // 根据name-id关闭socket连接
     closeServer(name, id) {
