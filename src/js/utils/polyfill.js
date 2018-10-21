@@ -105,6 +105,7 @@ if (!Array.prototype.forEach) {
         // 8. return undefined
     };
 }
+
 // 此polyfill不支持 symbol 属性，因为ES5 中根本没有 symbol ：
 if (typeof Object.assign != 'function') {
     // Must be writable: true, enumerable: false, configurable: true

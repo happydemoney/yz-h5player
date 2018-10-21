@@ -499,4 +499,37 @@ Vr.prototype.rotationQuat = {
     updateOrientation: false
 };
 
+/**
+ * bind 函数在 ECMA-262 第五版才被加入；它可能无法在所有浏览器上运行。你可以部份地在脚本开头加入以下代码，就能使它运作，让不支持的浏览器也能使用 bind() 功能。
+ */
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+        if (typeof this !== 'function') {
+            // closest thing possible to the ECMAScript 5
+            // internal IsCallable function
+            throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+        }
+
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
+            fNOP = function () { },
+            fBound = function () {
+                return fToBind.apply(this instanceof fNOP
+                    ? this
+                    : oThis,
+                    // 获取调用时(fBound)的传参.bind 返回的函数入参往往是这么传递的
+                    aArgs.concat(Array.prototype.slice.call(arguments)));
+            };
+
+        // 维护原型关系
+        if (this.prototype) {
+            // Function.prototype doesn't have a prototype property
+            fNOP.prototype = this.prototype;
+        }
+        fBound.prototype = new fNOP();
+
+        return fBound;
+    };
+}
+
 export default Vr;

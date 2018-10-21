@@ -1,13 +1,13 @@
 /**
  *  @version: yz-h5player 1.0.1;
- *  @link: https://github.com/happydemoney/HTML5-VR-Player;
+ *  @link: https://github.com/happydemoney/yz-h5player
  *  @license MIT licensed;
  *  @author: happydemoney(674425534@qq.com);
  */
 // three library
 import $ from 'jquery';
 
-// // es6 module
+// es6 module
 import swfobject from './module/swfobject.js';
 import Vr from './module/vr/vr.js';    // 全景模式相关
 import AdPlayer from './module/ad/adPlayer.js'; // 广告相关
@@ -16,11 +16,16 @@ import AdPlayer from './module/ad/adPlayer.js'; // 广告相关
 import '../css/videoPlayer.scss';
 
 // 引入常量模块
-import { videoType } from './const/constant.js';
+import { 
+    videoType
+} from './const/constant.js';
 import Config from './config.js';
 
 // util function
-import { getVideoType } from './utils/util.js';
+import { 
+    getVideoType,
+    loadJsCss
+} from './utils/util.js';
 
 // core -- create dom structure,bind dom event
 import initPlayerStructure from './core/playerStructure.js';
@@ -55,7 +60,13 @@ var videoPlayer = function (options, oParent) {
     options.barrageIntervalId = 0; // 弹幕请求IntervalId
 
     // 直播时初始化 videoUrl
-    if (options.isLive) { initVideoUrl(); }
+    if (options.isLive) { 
+        loadJsCss( 'lib/flv.js' , () => {
+            loadJsCss( 'lib/hls.js' , () => {
+                initVideoUrl(); 
+            } )   
+        } );
+    }
 
     //  * 直播播放时根据用户浏览器兼容情况选好直播流
     //  * 1. 优先选择 基于flv.js 的HTML5播放器播放,播 HTTP-FLV直播流
@@ -130,33 +141,41 @@ var videoPlayer = function (options, oParent) {
 
         switch (curVideoType) {
             case videoType['flv']:
-
+                
                 options.playerCurrent = new FlvPlayer(playerSrc, options);
+                options.playerCurrent.create();
                 break;
             case videoType['hls']:
 
-                options.playerCurrent = new HlsPlayer(playerSrc, options.isLive);
+                options.playerCurrent = new HlsPlayer(playerSrc, options);
+                options.playerCurrent.create();
                 break;
             default:
                 if (options.isLive) {
                     alert('请传入正确的直播流地址！');
                     return;
                 } else {
-
-                    options.playerCurrent = new NativePlayer(playerSrc, options.isLive);
+                    options.playerCurrent = new NativePlayer(playerSrc, options);
+                    options.playerCurrent.create();
                 }
                 break;
         }
-        options.playerCurrent.create();
 
         initHtml5CtrlEvents(options);
+        VrInit();
+    }
 
+    function VrInit(){
         // 是否开启VR功能
         if (options.vrSetting.vrSwitch) {
-            vrLaunch(); // 启动vrvr
+            if( !window.THREE ){
+                loadJsCss( 'lib/three.js' , () => {
+                    vrLaunch();
+                } );
+            }else{
+                vrLaunch(); // 启动vr
+            }
         }
-
-
     }
 
     function vrLaunch(playerSrc) {

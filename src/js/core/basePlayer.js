@@ -1,11 +1,11 @@
 /**
  * 播放器事件和属性定义
  */
-import { secondToTime } from '../utils/util.js';
+import { secondToTime, loadJsCss } from '../utils/util.js';
 import { seekIncrement } from '../const/constant.js';
 
-import flvjs from 'flvjs';
-import Hls from 'hls';
+// import flvjs from 'flvjs';
+// import Hls from 'hls';
 
 const flvOptions = {
     //fixAudioTimestampGap: false,
@@ -142,11 +142,7 @@ class BasePlayer {
     // 当浏览器已加载音频/视频的当前帧时
     onloadeddata(callback = function () { }) {
         callback();
-        this.playerSrc.onended = () => {
-            this.onended();
-        };
     }
-
 
     get buffered() {
         return this.playerSrc.buffered;
@@ -154,7 +150,6 @@ class BasePlayer {
 
     // 视频播放到结尾
     onended(callback = function () { }) {
-
         if (!this.playerSrc.paused) {
             this.pause();
         }
@@ -166,7 +161,7 @@ class BasePlayer {
     }
 
     destroy() {
-        this.playerCur.destroy();
+        this.playerCur.destroy && this.playerCur.destroy();
 
         this.playerSrc.onloadeddata = null;
         this.playerSrc.onloadedmetadata = null;
@@ -189,7 +184,15 @@ export class FlvPlayer extends BasePlayer {
     }
     // 创建播放器
     create() {
-
+        if( !window.flvjs ){
+            loadJsCss( 'lib/flv.js' , () => { 
+                this.createHandler();
+            } );
+        }else{
+            this.createHandler();
+        }
+    }
+    createHandler() {
         let playerCur = flvjs.createPlayer({
             type: 'flv',
             isLive: this.options.isLive,
@@ -250,33 +253,43 @@ export class HlsPlayer extends BasePlayer {
         super(playerSrc, options);
     }
     create() {
+        
+        if( !window.Hls ){
+
+            loadJsCss( 'lib/hls.js' , () => { 
+                this.createHandler();
+            })
+        }else{
+            this.createHandler();
+        }
+    }
+    createHandler(){
 
         this.playerCur = new Hls();
 
-        let thisPlayer = this.playerCur;
         // bind them together
         this.playerCur.attachMedia(this.playerSrc);
-        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, function () {
+        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, () => {
             ///console.log("video and hls.js are now bound together !");
-            thisPlayer.loadSource(this.options.videoUrl);
-            thisPlayer.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            this.playerCur.loadSource(this.options.videoUrl);
+            this.playerCur.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
                 //console.log("manifest loaded, found " + data.levels.length + " quality level");
             });
         });
 
-        this.playerCur.on(Hls.Events.ERROR, function (event, data) {
+        this.playerCur.on(Hls.Events.ERROR, (event, data) => {
             switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
                     showError('error', 'fatal network error encountered, try to recover');
-                    thisPlayer.startLoad();
+                    this.playerCur.startLoad();
                     break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
                     showError('error', 'fatal media error encountered, try to recover');
-                    thisPlayer.recoverMediaError();
+                    this.playerCur.recoverMediaError();
                     break;
                 default:
                     // cannot recover
-                    thisPlayer.destroy();
+                    this.playerCur.destroy();
                     break;
             }
         });
@@ -284,32 +297,30 @@ export class HlsPlayer extends BasePlayer {
     // 刷新播放器 
     refresh() {
 
-        let thisPlayer = this.playerCur;
-
         // unbind
         this.playerCur.detachMedia();
 
         // bind them together
         this.playerCur.attachMedia(this.playerSrc);
-        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, function () {
-            thisPlayer.loadSource(this.options.videoUrl);
-            thisPlayer.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, () => {
+            this.playerCur.loadSource(this.options.videoUrl);
+            this.playerCur.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
             });
         });
 
-        this.playerCur.on(Hls.Events.ERROR, function (event, data) {
+        this.playerCur.on(Hls.Events.ERROR, (event, data) => {
             switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
                     showError('error', 'fatal network error encountered, try to recover');
-                    thisPlayer.startLoad();
+                    this.playerCur.startLoad();
                     break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
                     showError('error', 'fatal media error encountered, try to recover');
-                    thisPlayer.recoverMediaError();
+                    this.playerCur.recoverMediaError();
                     break;
                 default:
                     // cannot recover
-                    thisPlayer.destroy();
+                    this.playerCur.destroy();
                     break;
             }
         });
@@ -332,30 +343,28 @@ export class HlsPlayer extends BasePlayer {
         this.playerCur.destroy();
         this.playerCur = hls;
 
-        let thisPlayer = this.playerCur;
-
         // bind them together
         this.playerCur.attachMedia(this.playerSrc);
-        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, function () {
+        this.playerCur.on(Hls.Events.MEDIA_ATTACHED, () => {
             ///console.log("video and hls.js are now bound together !");
-            thisPlayer.loadSource(this.options.videoUrl);
-            thisPlayer.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+            this.playerCur.loadSource(this.options.videoUrl);
+            this.playerCur.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
             });
         });
 
-        this.playerCur.on(Hls.Events.ERROR, function (event, data) {
+        this.playerCur.on(Hls.Events.ERROR, (event, data) => {
             switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
                     showError('error', 'fatal network error encountered, try to recover');
-                    thisPlayer.startLoad();
+                    this.playerCur.startLoad();
                     break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
                     showError('error', 'fatal media error encountered, try to recover');
-                    thisPlayer.recoverMediaError();
+                    this.playerCur.recoverMediaError();
                     break;
                 default:
                     // cannot recover
-                    thisPlayer.destroy();
+                    this.playerCur.destroy();
                     break;
             }
         });
@@ -370,6 +379,7 @@ export class NativePlayer extends BasePlayer {
     // 创建播放器
     create() {
         this.playerSrc.src = this.options.videoUrl;
+        this.playerCur = this.playerSrc;
     }
     // 刷新播放器 
     refresh() {
@@ -392,5 +402,6 @@ export class NativePlayer extends BasePlayer {
         this.playerSrc.src = '';
 
         this.playerSrc.src = this.options.videoUrl;
+        this.playerCur = this.playerSrc;
     }
 }

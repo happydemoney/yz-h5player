@@ -13,7 +13,7 @@
 
 #   Getting start
 
-环境依赖：nodejs、webpack。
+环境依赖：nodejs ( https://nodejs.org/en/ )
 
     npm install
     npm run build
@@ -21,8 +21,6 @@
 #   How to use
 
 ```javascript
-<link rel="stylesheet" type="text/css" href="dist/css/videoPlayer.css" />
-
 <div id="videoWrap"></div>
 
 /* jquery依赖库 */
@@ -47,10 +45,15 @@
 
 #   Local Test
 
+直播测试：
     1. 在livego目录下，根据md文件描述下载符合自己电脑环境的相关 livego 文件并运行它
     2. 用ffmepg本地推流
     3. 在testFile目录下找到live.js设置相关路径
-    4. 在当前功能根目录执行node命令，http-server（需要安装）静态服务器
+    4. 在当前根目录执行node命令(http-server),启动（需要安装 npm -g install http-server）静态服务器测试
+
+点播测试：
+    1. 在本地videoTest文件夹内加入相应video文件并在./testFile/js/live.js 设置相应路径
+    2. 启动静态服务器
 
 #   Option
 

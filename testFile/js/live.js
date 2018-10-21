@@ -60,13 +60,13 @@ function antSwitch() {
                     var player = $parentRenderItem.videoPlayer({
                         liveStreamUrl: liveStreamUrl,
                         isLive: true,
-                        barrage: {
+                        barrageSetting: {
                             isShow: true,
                             videoInfo: {
                                 videoName: 'liveTest',
                                 videoId: 999
                             },
-                            serverUrl: 'http://192.168.1.114:3001'
+                            serverUrl: 'http://47.75.107.96:3001'
                         }
                     });
                     $parentRenderItem.data('player', player);
@@ -92,91 +92,16 @@ function antSwitch() {
             switch (dataType) {
                 case 'FlvJs':
                     var player = $parentRenderItem.videoPlayer({
-                        debug: true,
-                        //videoUrl: oVideoUrl.flv,
-                        barrageSetting: {
-                            isShow: true,
-                            videoInfo: {
-                                videoName: 'videoTest',
-                                videoId: 1000
-                            },
-                            serverUrl: 'http://192.168.1.114:3000'
-                        },
+                        videoUrl: oVideoUrl.flv,
                         skinSetting: {
-                            skinName: 'concise', // 优雅(elegant)、科技(technology)、简洁(concise)
+                            skinName: 'default', // 优雅(elegant)、科技(technology)、简洁(concise)
                             skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
                         },
-                        // 广告设置 - 片头、暂停、片尾
-                        adSetting: {
-                            adActive: false, // 激活状态
-                            beginning: {
-                                timeLength: 29, //广告总时长
-                                source: ['http://192.168.1.22/mp4/1513751254948171/87a281b8bd41678c0bfd631a26b517b2/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/6ef3b80f3039c31434fab38189eb2b4c.mp4', 'http://192.168.1.22/mp4/1513751254948171/9177a0cd7a39daca064a3452c1085f01/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/8376ddb496e84125bbb85c85c41d8a7c.mp4'], // 一般为短视频 10~60秒
-                                link: ['https://www.lincoln.com.cn/?searchid=CPC_290716_PCKW_bd_AMC_BN_baojia_ID2332', 'http://www.adzop.com/']
-                            },
-                            pause: {
-                                source: ['http://127.0.0.1:8080/testFile/images/ad.jpg'], // 一般为图片
-                                link: ['http://www.baidu.com']
-                            },
-                            ending: {
-                                timeLength: 29, //广告总时长
-                                source: ['http://192.168.1.22/mp4/1513751254948171/9177a0cd7a39daca064a3452c1085f01/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/8376ddb496e84125bbb85c85c41d8a7c.mp4', 'http://192.168.1.22/mp4/1513751254948171/87a281b8bd41678c0bfd631a26b517b2/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/6ef3b80f3039c31434fab38189eb2b4c.mp4'], // 一般为短视频 10~60秒
-                                link: ['http://www.adzop.com/', 'https://www.lincoln.com.cn/?searchid=CPC_290716_PCKW_bd_AMC_BN_baojia_ID2332']
-                            }
-                        },
-                        // 清晰度设置
-                        definitionSetting: {
-                            firstRate: {
-                                text: '超清',
-                                //url: 'http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/a28ecbdaffa819dfa0747362002be70e.mp4'
-                                url: 'http://127.0.0.1:8080/videoTest/flv/720-flv.flv'
-                            },
-                            allRate: [{
-                                text: '超清',
-                                //url: 'http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/a28ecbdaffa819dfa0747362002be70e.mp4'
-                                url: 'http://127.0.0.1:8080/videoTest/flv/720-flv.flv'
-                            }, {
-                                text: '高清',
-                                //url: 'http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_480_25_H264_501_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/e6b9698c18194b0b335528187e754701.mp4'
-                                url: 'http://127.0.0.1:8080/videoTest/flv/480-flv.flv'
-                            }, {
-                                text: '标清',
-                                //url: 'http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_240_25_H264_251_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/236bee535e7b0e5d56e4f1f30c0ae721.mp4'
-                                url: 'http://127.0.0.1:8080/videoTest/flv/240-flv.flv'
-                            }, {
-                                text: '1080P',
-                                url: 'http://127.0.0.1:8080/videoTest/flv/1080-flv.flv'
-                                //url: 'http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_1080_30_H264_4001_4_9_1_0_2_1_3_0_1_0_2_0_0_0_N/68a5efa25c13f01591f6d61dc8a717d5.mp4'
-                            }]
-                        },
+                        // 全景相关配置
                         vrSetting: {
-                            vrSwitch: false,
-                            vrControl: true,
-                            vrMode: 0
-                        },
-                        // 面板设置 - logo显示，开/关灯，分享到社交平台等
-                        panelSetting: {
-                            logo: {
-                                isShow: true,
-                                src: 'http://127.0.0.1:8080/testFile/images/logo.jpg',
-                                position: 'top-right' // top-left / top-right / bottom-left / bottom-right
-                            },
-                            light: {
-                                isShow: true
-                            },
-                            share: {
-                                isShow: true, // true - false
-                                options: '1|1|1|1|1|1', // 1 显示，0 不显示； 分享小插件图标新浪，腾讯微博，qq空间，微信，qq，人人网
-                                copy: "http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548|<iframe marginWidth=0 marginHeight=0 src=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$iframe=iframe$#$userVideoID=181548 frameBorder=0 width=900 scrolling=no height=600 allowTransparency><\/iframe>",
-                                links: "http://service.weibo.com/share/share.php?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://share.v.t.qq.com/index.php?c=share$#$atx=index$#$url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pics=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://s.jiathis.com/?webid=weixin$#$url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$isexit=false|http://connect.qq.com/widget/shareqq/index.html?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pics=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://share.renren.com/share/buttonshare.do?link=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg"
-                            }
-                        },
-                        screenshotsSetting: {
-                            displayState: false, // 显示状态 - true / false
-                            serviceUrl: 'http://127.0.0.1:8080/videoTest/flv/Screenshots', // 截图存放服务器地址
-                            suffix: '.jpg', // 默认后缀格式为 .jpg
-                            prefix: 'myvideo', // 默认前缀名称为 myvideo
-                            timeout: 300
+                            vrSwitch: false,  // vr开关 - 默认关闭
+                            vrControl: true, // vrControl切换条是否展示
+                            vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
                         }
                     });
                     playerNew = player;
@@ -184,8 +109,13 @@ function antSwitch() {
                     break;
                 case 'HlsJs':
                     var player = $parentRenderItem.videoPlayer({
-                        videoUrl: oVideoUrl.hls
+                        videoUrl: oVideoUrl.hls,
+                        skinSetting: {
+                            skinName: 'default', // 优雅(elegant)、科技(technology)、简洁(concise)
+                            skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
+                        }
                     });
+                    playerNew = player;
                     $parentRenderItem.data('player', player);
                     break;
                 case 'Flash':
@@ -193,6 +123,7 @@ function antSwitch() {
                         videoUrl: oVideoUrl.flash,
                         playerType: 'Flash'
                     });
+                    playerNew = player;
                     $parentRenderItem.data('player', player);
                     break;
                 default: break;
@@ -232,8 +163,10 @@ function setStreamUrl() {
             // flv: 'http://' + hostName + ':' + onDemandPort + '/videoTest/神奇女侠.mp4',
             // hls: 'http://ivi.bupt.edu.cn/hls/cctv5hd.m3u8'
             //hls: 'http://' + hostName + ':' + onDemandPort + '/videoTest/m3u8/xmpolice.m3u8',
-            hls: 'https://cdn.memorieslab.com//video/mgn_brand_video.mp4'
-            //hls: 'http://' + hostName + ':' + onDemandPort + '/videotest/mgn_brand_video.mp4'
+            // hls: 'https://cdn.memorieslab.com/video/mgn_brand_video.mp4'
+            hls: 'http://' + hostName + ':' + onDemandPort + '/videoTest/m3u8/xmpolice.m3u8'
+            // hls: 'http://' + hostName + ':' + onDemandPort + '/videoTest/mp4/265809.mp4'
+            // hls: 'http://127.0.0.1:8080/videoTest/mp4/265809.mp4'
             //hls: 'http://cdn.simope.net/hls/1482227427575463/50a672b9edffa2b5ee6377d054557c3a/1_720_25_H264_1200_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/1bc4faadc6ca4e60b22b93d891386ea9.m3u8'
             //hls: "http://192.168.1.22/mp4/1513751254948171/59de1b7672fa8a90feaba0649daf1131/1_720_25_H264_1001_4_3_1_0_2_1_3_0_1_0_2_0_0_0_N/a28ecbdaffa819dfa0747362002be70e.mp4"
         };

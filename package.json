@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch",
-    "build": "webpack"
+    "watch": "webpack --watch && gulp jsLibUglify",
+    "build": "webpack && gulp jsLibUglify"
   },
   "license": "MIT",
   "devDependencies": {
@@ -26,7 +26,10 @@
     "sass-loader": "^6.0.7",
     "style-loader": "^0.20.3",
     "webpack": "4.1.1",
-    "webpack-cli": "2.0.11"
+    "webpack-cli": "2.0.11",
+    "gulp": "^3.9.1",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-uglify": "^3.0.0"
   },
   "dependencies": {}
 }

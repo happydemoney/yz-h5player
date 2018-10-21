@@ -2,7 +2,9 @@
  * 自定义一些功能函数
  */
 // 引入常量模块
-import { videoType } from '../const/constant.js';
+import { 
+    videoType
+} from '../const/constant.js';
 /**
  * getVideoType - 获取视频类型
  * @param {String} videoUrl
@@ -119,4 +121,73 @@ export function fullscreenEnable() {
         document.msFullscreenEnabled;
     //注意：要在用户授权全屏后才能准确获取当前的状态
     return Boolean(isFullscreen);
+}
+ /**
+  * js和css按需加载
+  * url为相对路径，需要转为绝对路径
+  */
+export function loadJsCss(url, callback ){// 非阻塞的加载 后面的js会先执行
+    var isJs = /\/.+\.js($|\?)/i.test(url) ? true : false;
+    function onloaded(script, callback){//绑定加载完的回调函数
+        if(script.readyState){ //ie
+            script.attachEvent('onreadystatechange', function(){
+                if(script.readyState == 'loaded' || script.readyState == 'complete'){
+                    script.className = 'loaded';
+                    callback && callback.constructor === Function && callback();
+                }
+            });
+        }else{
+            script.addEventListener('load',function(){
+                script.className = "loaded";
+                callback && callback.constructor === Function && callback();
+            }, false); 
+        }
+    }
+    function getJsRelativePath(url){
+        var targetJsName = 'videoPlayer.js';
+        var jsNameReg = new RegExp(targetJsName);
+        var absolutePath = url;
+        var scripts = document.getElementsByTagName('script');
+
+        for(var i = 0; i < scripts.length; i++){
+            var src = scripts[i].src;
+            if(jsNameReg.test(src)){
+                absolutePath = src.replace(targetJsName,'') + url;
+            }
+        }
+        return absolutePath;
+    }
+    if(!isJs){ //加载css
+        var links = document.getElementsByTagName('link');
+        for(var i = 0; i < links.length; i++){//是否已加载
+            if(links[i].href.indexOf(url)>-1){ 
+                return; 
+            }
+        }
+        var link = document.createElement('link');
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        link.href = url;
+        var head = document.getElementsByTagName('head')[0]; 
+        head.insertBefore(link,head.getElementsByTagName('link')[0] || null );
+    }else{ //加载js
+        var scripts = document.getElementsByTagName('script');
+        for(var i = 0; i < scripts.length; i++){
+            //是否已加载
+            if(scripts[i].src.indexOf(url)>-1 && callback && (callback.constructor === Function) ){ 
+            //已创建script
+                if(scripts[i].className === 'loaded'){//已加载
+                    callback();
+                }else{//加载中
+                    onloaded(scripts[i], callback);
+                }
+                return; 
+            }
+        }
+        var script = document.createElement('script');
+        script.type = "text/javascript";
+        script.src = getJsRelativePath(url); 
+        document.body.appendChild(script);
+        onloaded(script, callback); 
+    }
 }

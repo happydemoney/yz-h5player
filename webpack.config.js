@@ -5,10 +5,12 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-    entry: './src/js/yzH5player.js',
+    entry: {
+      "videoPlayer" : './src/js/yzH5player.js',
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'videoPlayer.js',
+        filename: '[name].js',
         library: 'videoPlayer',
         libraryExport: 'default',
         libraryTarget: 'umd'
