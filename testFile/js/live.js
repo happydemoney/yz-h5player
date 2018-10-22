@@ -115,7 +115,7 @@ function antSwitch() {
                             skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
                         }
                     });
-                    playerNew = player;
+                    // playerNew = player;
                     $parentRenderItem.data('player', player);
                     break;
                 case 'Flash':
@@ -123,7 +123,7 @@ function antSwitch() {
                         videoUrl: oVideoUrl.flash,
                         playerType: 'Flash'
                     });
-                    playerNew = player;
+                    // playerNew = player;
                     $parentRenderItem.data('player', player);
                     break;
                 default: break;

@@ -3,7 +3,7 @@
  */
 // 引入常量模块
 import { shareIcon, fullscreenHideTimeout } from '../const/constant.js';
-import QRCode from 'qrcode';
+// import QRCode from 'qrcode';
 
 // util function
 import _ from '../utils/common.js';    // 类似underscore功能函数
