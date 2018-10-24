@@ -2,6 +2,11 @@
 
     A video player base on HTML5 , support barrage and custom UI and other useful funcition.
 
+[![License MIT](https://img.shields.io/github/license/happydemoney/yz-h5player.svg)](https://github.com/happydemoney/yz-h5player/blob/master/LICENSE)
+[ ![showUrl](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E5%9C%B0%E5%9D%80-v1.0.0-orange.svg)](https://happydemoney.github.io)
+[ ![showUrlCode](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E4%BB%93%E5%BA%93-v1.0.0-blue.svg)](https://github.com/happydemoney/happydemoney.github.io)
+
+## 功能说明 
 *   点播/直播，支持视频格式{.flv(h264+aac/mp3),.m3u8,.mp4及其他video原生支持的视频格式.ogg/.webm等等(需要浏览器支持)},直播协议HTTP-FLV,HLS,RTMP（需要flash支持，功能很少，只有基本的播放功能）
 *   支持清晰度切换(240P/480P/720P/1080P)，自由配置
 *   支持VR全景播放 - 基于three.js
@@ -11,19 +16,14 @@
 *   开关灯/分享到社交平台（已完成）
 *   视频进度条帧截图（需要使用工具（比如ffmepg）提前把视频的帧截图处理好并提供存放服务器路径）
 
-#   线上展示
-
-    展示地址：https://happydemoney.github.io/
-    代码仓库：https://github.com/happydemoney/happydemoney.github.io
-
-#   Getting start
+##   Getting start
 
 环境依赖：nodejs ( https://nodejs.org/en/ )
 
     npm install
     npm run build
 
-#   How to use
+##   How to use
 
 ```javascript
 <div id="videoWrap"></div>
@@ -48,7 +48,7 @@
 </script>
 ```
 
-#   Local Test
+##  Local Test
 
 直播测试：
     1. 在livego目录下，根据md文件描述下载符合自己电脑环境的相关 livego 文件并运行它
@@ -60,7 +60,7 @@
     1. 在本地videoTest文件夹内加入相应video文件并在./testFile/js/live.js 设置相应路径
     2. 启动静态服务器
 
-#   Option
+##   Option
 
 *   playerType: 播放器类型 (Html5/Flash) 
     
@@ -206,7 +206,7 @@ screenshotsSetting: {
     timeout: 300 // 控制视频截图滑动显示的频率
 }
 ```
-#   Method
+##   Method
 
     当页面内只存在一个videoPlayer对象的时候,可使用$.fn.videoPlayer.methodName()简洁引用方法，
     存在多个videoPlayer对象时，需要在创建时缓存对应的videoPlayer对象，方便后面调用方法。
@@ -230,7 +230,7 @@ Apply:
 
 *   playbackspeedChange: 播放速率调整(推荐参数：0.5/0.75/1.0/1.25/1.5/2.0) - 1.0为正常速率
 
-#   Experience sharing
+##   Experience sharing
 
 *   Chrome browser mouse event (mouseout mouseleave) BUG ?
 
