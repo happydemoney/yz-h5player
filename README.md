@@ -5,8 +5,8 @@
 
 [![GitHub release](https://img.shields.io/github/release/happydemoney/yz-h5player.svg)](https://github.com/happydemoney/yz-h5player/releases)
 [![License MIT](https://img.shields.io/github/license/happydemoney/yz-h5player.svg)](https://github.com/happydemoney/yz-h5player/blob/master/LICENSE)
-[ ![showUrl](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E5%9C%B0%E5%9D%80-v1.0.0-orange.svg)](https://happydemoney.github.io)
-[ ![showUrlCode](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E4%BB%93%E5%BA%93-v1.0.0-blue.svg)](https://github.com/happydemoney/happydemoney.github.io)
+[ ![showUrl](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E5%9C%B0%E5%9D%80-v1.0.1-orange.svg)](https://happydemoney.github.io)
+[ ![showUrlCode](https://img.shields.io/badge/%E6%BC%94%E7%A4%BA%E4%BB%93%E5%BA%93-v1.0.1-blue.svg)](https://github.com/happydemoney/happydemoney.github.io)
 
 ## 功能说明 
 *   点播/直播，支持视频格式{.flv(h264+aac/mp3),.m3u8,.mp4及其他video原生支持的视频格式.ogg/.webm等等(需要浏览器支持)},直播协议HTTP-FLV,HLS,RTMP（需要flash支持，功能很少，只有基本的播放功能）

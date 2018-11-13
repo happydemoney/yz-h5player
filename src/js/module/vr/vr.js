@@ -62,8 +62,6 @@ class Vr {
      * vr destroy
      */
     destroy(){
-        console.log('destroy');
-        console.log( window.cancelAnimationFrame );
         window.cancelAnimationFrame(this.animationFrame);
 
         this.container.find('.h5player-vrWrap').empty();
@@ -202,7 +200,6 @@ class Vr {
         thisVr.renderer.setSize(videoWidth, videoHeight);
 
         // jq  - .append
-        //console.log(thisVr.container);
         thisVr.container.find('video').hide();
         thisVr.container.find('.h5player-vrWrap').append(thisVr.renderer.domElement);
 
@@ -290,7 +287,7 @@ class Vr {
      * 周期渲染函数，该函数被用于逐帧计数器函数调用
      */
     animate() {
-        console.log('animate');
+
         var thisVr = this;
         thisVr.animationFrame = window.requestAnimationFrame(thisVr.animate.bind(thisVr));
         thisVr.camera.lookAt(thisVr.scene.position);
