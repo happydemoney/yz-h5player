@@ -92,16 +92,68 @@ function antSwitch() {
             switch (dataType) {
                 case 'FlvJs':
                     var player = $parentRenderItem.videoPlayer({
-                        videoUrl: oVideoUrl.flv,
+                        // videoUrl: oVideoUrl.flv,
                         skinSetting: {
-                            skinName: 'default', // 优雅(elegant)、科技(technology)、简洁(concise)
+                            skinName: 'concise', // 优雅(elegant)、科技(technology)、简洁(concise)
                             skinColor: 'default' // (#1289f7)  /   (#30D2FA) /    (#10CA56)
+                        },
+                        // 清晰度设置
+                        definitionSetting: {
+                            firstRate: {
+                                text: '超清',
+                                url: location.origin + '/videoTest/flv/720-flv.flv'
+                            },
+                            allRate: [{
+                                text: '超清',
+                                url: location.origin + '/videoTest/flv/720-flv.flv'
+                            }, {
+                                text: '高清',
+                                url: location.origin + '/videoTest/flv/480-flv.flv'
+                            }, {
+                                text: '标清',
+                                url: location.origin + '/videoTest/flv/360-flv.flv'
+                            }]
+                        },
+                        barrageSetting: {
+                            // 是否显示弹幕按钮
+                            isShow: true,
+                            // 视频信息 - 名称和ID
+                            videoInfo: {
+                                videoName: 'videoTest',
+                                videoId: '1000'
+                            },
+                            // 弹幕服务器地址
+                            serverUrl: 'https://47.75.107.96:3000'
                         },
                         // 全景相关配置
                         vrSetting: {
-                            vrSwitch: false,  // vr开关 - 默认关闭
+                            vrSwitch: true,  // vr开关 - 默认关闭
                             vrControl: true, // vrControl切换条是否展示
                             vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
+                        },
+                        // 面板设置 - logo显示，开/关灯，分享到社交平台等
+                        panelSetting: {
+                            logo: {
+                                isShow: true,
+                                src: location.origin + '/testFile/images/logo.png',
+                                position: 'top-right' // top-left / top-right / bottom-left / bottom-right
+                            },
+                            light: {
+                                isShow: true
+                            },
+                            share: {
+                                isShow: true, // true - false
+                                options: '1|1|1|1|1|1', // 1 显示，0 不显示； 分享小插件图标新浪，腾讯微博，qq空间，微信，qq，人人网
+                                copy: "http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548|<iframe marginWidth=0 marginHeight=0 src=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$iframe=iframe$#$userVideoID=181548 frameBorder=0 width=900 scrolling=no height=600 allowTransparency><\/iframe>",
+                                links: "http://service.weibo.com/share/share.php?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://share.v.t.qq.com/index.php?c=share$#$atx=index$#$url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pics=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://s.jiathis.com/?webid=weixin$#$url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$isexit=false|http://connect.qq.com/widget/shareqq/index.html?url=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pics=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg|http://share.renren.com/share/buttonshare.do?link=http://112.49.34.6:11803/yzplayerAction!play2.action?autoPlay=false$#$userVideoID=181548$#$title=周华健感冒灵广告片9$#$pic=http://112.49.34.6:1880/img/admin/a429cb7b70bdfb5563cfc770ef3c7cad/thumbnail.jpg"
+                            }
+                        },
+                        screenshotsSetting: {
+                            displayState: true, // 显示状态 - true / false
+                            serviceUrl: location.origin + '/videoTest/flv/Screenshots', // 截图存放服务器地址
+                            suffix: '.jpg', // 默认后缀格式为 .jpg
+                            prefix: 'myvideo', // 默认前缀名称为 myvideo
+                            timeout: 300
                         }
                     });
                     playerNew = player;

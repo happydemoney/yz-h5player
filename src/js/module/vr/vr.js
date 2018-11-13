@@ -23,12 +23,16 @@ class Vr {
     /**
      * 初始化
      * @param: stream_url(视频地址);
-     * @param: vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
+     * @param: vrMode(全景类型--0:普通, 1：全景,2：半景,3：小行星,4：鱼眼);
      */
     init() {
-        var thisVr = this;
+        let thisVr = this;
+        
+        if( thisVr.vrMode === 0 ){
+            return;
+        }
 
-        if (thisVr.vrMode == 3) {
+        if (thisVr.vrMode == 4) {
             thisVr.eventHandleVariable.viewpointLat = 0;
         }
 
@@ -36,6 +40,36 @@ class Vr {
             thisVr.main();
         }, 500);
     }
+
+    /**
+     * vr mode 切换
+     * @param {*} mode 
+     */
+    vrSwitchMode( mode )  {
+        let curMode = this.vrMode;
+
+        // 由普通切换至全景
+        if( curMode === 0 ){
+            this.vrMode = mode;
+            this.init();
+        }else{
+            this.vrMode = mode;
+            this.main();
+        }
+    }
+
+    /**
+     * vr destroy
+     */
+    destroy(){
+        console.log('destroy');
+        console.log( window.cancelAnimationFrame );
+        window.cancelAnimationFrame(this.animationFrame);
+
+        this.container.find('.h5player-vrWrap').empty();
+        this.container.find('video').show();
+    }
+
     /**
      * 主函数
      */
@@ -62,7 +96,7 @@ class Vr {
 
         // 各个vrMode处理
         switch (thisVr.vrMode) {
-            case 0:
+            case 1:
                 thisVr.log("全景mode");
                 thisVr.scene = new THREE.Scene();
 
@@ -73,7 +107,7 @@ class Vr {
 
                 thisVr.scene.add(_sphere);
                 break;
-            case 1:
+            case 2:
                 // 180 degree half sphere
                 thisVr.log("半景mode");
                 thisVr.scene = new THREE.Scene();
@@ -97,7 +131,7 @@ class Vr {
 
                 thisVr.scene.add(_sphere);
                 break;
-            case 2:
+            case 3:
                 // Little planet mode
                 thisVr.log("小行星mode");
                 thisVr.scene = new THREE.Scene();
@@ -124,7 +158,7 @@ class Vr {
                 );
                 thisVr.scene.add(_sphere);
                 break;
-            case 3:
+            case 4:
                 // Fisheye mode
                 thisVr.log("鱼眼mode");
                 thisVr.scene = new THREE.Scene();
@@ -145,8 +179,8 @@ class Vr {
                 });
 
                 var _sphere = new THREE.Mesh(
-                    geometry,
-                    material
+                    _geometry,
+                    _material
                 );
 
                 thisVr.scene.add(_sphere);
@@ -170,7 +204,7 @@ class Vr {
         // jq  - .append
         //console.log(thisVr.container);
         thisVr.container.find('video').hide();
-        thisVr.container.append(thisVr.renderer.domElement);
+        thisVr.container.find('.h5player-vrWrap').append(thisVr.renderer.domElement);
 
         thisVr.animate();
 
@@ -237,7 +271,7 @@ class Vr {
             var e = window.event || e;
             var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
             //Math.max( sq.zoom, Math.min(sq.nw, sq.e.width + (sq.zoom * delta))) + "px"
-            if (thisVr.vrMode <= 1) {
+            if (thisVr.vrMode <= 2 && thisVr.vrMode > 0) {
                 thisVr.eventHandleVariable.fov = thisVr.eventHandleVariable.fov - (delta * 5);
                 thisVr.eventHandleVariable.fov = Math.max(30, Math.min(120, thisVr.eventHandleVariable.fov));
                 thisVr.camera.fov = thisVr.eventHandleVariable.fov;
@@ -256,12 +290,13 @@ class Vr {
      * 周期渲染函数，该函数被用于逐帧计数器函数调用
      */
     animate() {
+        console.log('animate');
         var thisVr = this;
-        window.requestAnimationFrame(thisVr.animate.bind(thisVr));
+        thisVr.animationFrame = window.requestAnimationFrame(thisVr.animate.bind(thisVr));
         thisVr.camera.lookAt(thisVr.scene.position);
 
         // 全景 or 半景
-        if (thisVr.vrMode <= 1) {
+        if (thisVr.vrMode <= 2 && thisVr.vrMode > 0) {
             var quat = _getRotationQuat();
             thisVr.camera.setRotationFromQuaternion(quat);
             //  thisVr.texture.needsUpdate = true;

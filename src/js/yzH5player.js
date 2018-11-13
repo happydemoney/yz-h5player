@@ -35,15 +35,15 @@ import { initHtml5CtrlEvents, playerPlay, playerMuted, playerPause } from './cor
 import { FlvPlayer, HlsPlayer, NativePlayer } from './core/basePlayer.js';
 
 'use strict';
-var $window = $(window);
-var $document = $(document);
+// var $window = $(window);
+// var $document = $(document);
 var VERSION = '1.0.1';
 var pluginName = 'videoPlayer';
 
 // 是否是支持触摸的设备    
 var isTouchDevice = navigator.userAgent.match(/(iPhone|iPod|iPad|Android|playbook|silk|BlackBerry|BB10|Windows Phone|Tizen|Bada|webOS|IEMobile|Opera Mini)/),
     // 是否支持触摸事件
-    isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints)),
+    // isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || (navigator.maxTouchPoints)),
     isIE11Browser = /rv/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent),
     isEdgeBrowser = /edge/gi.test(navigator.userAgent) && /trident/gi.test(navigator.userAgent);
 
@@ -135,8 +135,7 @@ var videoPlayer = function (options, oParent) {
     // HTML5播放器    
     function Html5Player() {
 
-        let { playerSrc, playerVolume } = initPlayerStructure(options),
-            playerCur = null,
+        let { playerSrc } = initPlayerStructure(options),
             curVideoType = getVideoType(options.videoUrl);
 
         switch (curVideoType) {
@@ -178,20 +177,20 @@ var videoPlayer = function (options, oParent) {
         }
     }
 
-    function vrLaunch(playerSrc) {
-        var vr = new Vr({
+    function vrLaunch() {
+        options.vrSetting.vrClientObject = new Vr({
             debug: options.debug,
             container: options.playerContainer.find('.liveContent'),
             vrMode: options.vrSetting.vrMode,
             videoSource: options.playerCurrent.playerSrc
         });
 
-        vr.init();
+        options.vrSetting.vrClientObject.init();
     }
 
     // Flash播放器    
-    function FlashPlayer(operation) {
-        let { playerSrc, playerVolume } = initPlayerStructure(options),
+    function FlashPlayer() {
+        let { playerSrc } = initPlayerStructure(options),
             playerId = $(playerSrc).attr('id');
 
         var swfVersionStr = "10.0.0",
@@ -264,9 +263,7 @@ var videoPlayer = function (options, oParent) {
             }
 
             // 事件销毁
-            //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
             options.playerContainer.off('.vp_custom_event');
-            //console.log($.cache[options.playerContainer.get(0)[$.expando]]);
             options.playerContainer.find('.videoContainer').remove();
         }
     }

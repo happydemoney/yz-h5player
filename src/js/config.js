@@ -58,10 +58,12 @@ class Config {
             },
             // VR相关设置
             vrSetting: {
+                // vr客户端对象
+                vrClientObject: null,
                 vrSwitch: false, // vr开关 - 默认关闭
                 //0.普通视频 1.3D左右 2.3D上下 3.半景前视 4.半景3D左右 5.半景3D上下 6.全景视频 7.全景3D左右 8.全景3D上下  9.鱼眼 10.小行星 -- 待实现
                 vrControl: true, // vrControl切换条是否展示
-                vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
+                vrMode: 0  // vrMode(vr类型--0：普通,1：全景,2：半景);
             },
             // 广告设置 - 片头、暂停、片尾
             adSetting: {

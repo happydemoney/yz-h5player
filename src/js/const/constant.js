@@ -1,6 +1,7 @@
 /* 定义常量以及插件默认选项 */
 export const shareIcon = ['icon-weibo', 'icon-tWeibo', 'icon-qzone', 'icon-weChat', 'icon-qq', 'icon-renren'];
-export const vrTextShow = ['全景', '半景', '小行星', '鱼眼'];
+// export const vrTextShow = ['普通', '全景', '半景', '小行星', '鱼眼'];
+export const vrTextShow = ['普通', '全景', '半景'];
 // 视频/视频流类别 - rtmp: Flash播放器(only) / flv: 基于flv.js的HTML5播放器 / hls: 基于hls.js的HTML5播放器 / html5: video标签原生支持的视频格式 .mp4/.ogg/.webm
 export const videoType = { rtmp: 'RTMP', flv: 'FLV', hls: 'HLS', html5: 'HTML5' };
 // 快进/退 默认值

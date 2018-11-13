@@ -2,8 +2,14 @@
  * 绑定H5播放控制器的相关dom事件
  */
 // 引入常量模块
-import { shareIcon, fullscreenHideTimeout } from '../const/constant.js';
+import { 
+    shareIcon, 
+    fullscreenHideTimeout,
+    vrTextShow 
+} from '../const/constant.js';
 // import QRCode from 'qrcode';
+
+import Vr from '../module/vr/vr.js';    // 全景模式相关
 
 // util function
 import _ from '../utils/common.js';    // 类似underscore功能函数
@@ -373,9 +379,13 @@ export function initHtml5CtrlEvents(options) {
     });
 
     // 视频清晰度相关事件处理
-    //options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .btn-kbps-text', definitionSwicth);
     options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-kbps-change', function () {
         definitionChange(this, options);
+    });
+
+    // vr模式切换
+    options.playerContainer.on('click.vp_custom_event', '.h5player-ctrl-bar .h5player-ctrl-bar-vr-change', function () {
+        vrModeChange(this, options);
     });
 
     // document mousemove/mouseup 
@@ -630,6 +640,56 @@ function pauseAdClose() {
     $pauseAdWrap.removeClass('active');
 }
 
+// vr 模式切换
+function vrModeChange(element, options){
+
+    let $this = $(element);
+    if ($this.hasClass('h5player-ctrl-bar-vr-current')) {
+        return;
+    }else {
+        let $thisParents = $this.parents('.btn-vr'),
+            $vrText = $thisParents.find('.btn-vr-text'),
+            $current = $this.siblings('.h5player-ctrl-bar-vr-current'),
+            newVrMode = $this.attr('data-res');
+        
+        $thisParents.addClass('h5player-ctrl-bar-vr-panel-hide');
+
+        function _loadAfterFunc() {
+            $current.removeClass('h5player-ctrl-bar-vr-current');
+            $this.addClass('h5player-ctrl-bar-vr-current');
+            $vrText.text(vrTextShow[newVrMode]).attr('data-res', newVrMode);
+        }
+        switchVrMode(options, newVrMode, _loadAfterFunc);
+
+        // 暂时 - vr切换完成执行
+        setTimeout(function () {
+            $thisParents.removeClass('h5player-ctrl-bar-vr-panel-hide');
+        }, 1000);
+    }
+}
+
+function switchVrMode(options, newVrMode, callback){
+
+    if( newVrMode === "0" ){
+
+        options.vrSetting.vrClientObject.destroy();
+        setTimeout(function(){
+            options.vrSetting.vrClientObject = null;
+            options.vrSetting.vrClientObject = new Vr({
+                debug: options.debug,
+                container: options.playerContainer.find('.liveContent'),
+                vrMode: newVrMode,
+                videoSource: options.playerCurrent.playerSrc
+            });
+        },0)
+        
+    }else{
+        options.vrSetting.vrClientObject.vrSwitchMode( Number(newVrMode) );
+    }
+    
+    callback();
+}
+
 // 清晰度切换
 function definitionChange(element, options) {
 
@@ -656,7 +716,6 @@ function definitionChange(element, options) {
         setTimeout(function () {
             $thisParents.removeClass('h5player-ctrl-bar-kbps-panel-hide');
         }, 1000);
-
     }
 }
 

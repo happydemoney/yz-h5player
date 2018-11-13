@@ -28,6 +28,28 @@ function initPlayerStructure(options) {
         }
     }
 
+    // 是否开启VR功能 - 且 vrSetting.vrControl为true显示vr切换条
+    let vrContentString = '';
+    let vrWrapString = '';
+
+    if( options.vrSetting.vrSwitch && options.vrSetting.vrControl ){
+
+        let vrMode = options.vrSetting.vrMode;
+        vrContentString += '<div class="h5player-ctrl-bar-btn btn-vr"><span class="btn-vr-text" data-res="' + vrTextShow[vrMode] + '">' + vrTextShow[vrMode] + '</span>';
+        vrContentString += '<div class="h5player-ctrl-bar-vr-panel">';
+        for (let i = 0; i < vrTextShow.length; i++) {
+
+            if (i === vrMode) {
+                vrContentString += '<span class="h5player-ctrl-bar-vr-change h5player-ctrl-bar-vr-current" data-res="' + i + '">' + vrTextShow[i] + '</span>';
+            } else {
+                vrContentString += '<span class="h5player-ctrl-bar-vr-change" data-res="' + i + '">' + vrTextShow[i] + '</span>';
+            }
+        }
+        vrContentString += '</div></div>';
+
+        vrWrapString = '<div class="h5player-vrWrap"></div>';
+    }
+
     // 暂停广告字符串
     let pauseAdString = '';
 
@@ -99,8 +121,6 @@ function initPlayerStructure(options) {
         timelineTag = '<div class="h5player-ctrl-timeline-container"><span class="current-time">00:00:01</span>/<span class="duration-time">01:30:30</span></div>', // 点播视频显示 - 当前时间 / 视频长度
         // 弹幕主体显示部分
         barrageContentString = options.barrageSetting.isShow ? '<div class="h5player-barrage-wrap"></div>' : '',
-        // 是否开启VR功能 - 且 vrSetting.vrControl为true显示vr切换条
-        vrContentString = options.vrSetting.vrSwitch && options.vrSetting.vrControl ? '<span class="h5player-ctrl-bar-btn btn-vr" data-info="' + vrTextShow[options.vrSetting.vrMode] + '">' + vrTextShow[options.vrSetting.vrMode] + '</span>' : '',
 
         html5ControlString_live = '<div class="h5player-live-ctrl">' +
             '<div class="h5player-live-bar">' +
@@ -148,7 +168,7 @@ function initPlayerStructure(options) {
         videoString = '<div class="videoContainer"><div class="liveContent ' + h5playerStatusClass + h5playerSkinClass + '">' +
             '<video class="' + videoClassName + '" id="' + playerId + '" ' + controlsTag + '>' +
             'Your browser is too old which does not support HTML5 video' +
-            '</video>' + barrageContentString + html5ControlString + pauseAdString + panelString +
+            '</video>' + barrageContentString + html5ControlString + pauseAdString + panelString + vrWrapString +
             '</div>' +
             '</div>';
 

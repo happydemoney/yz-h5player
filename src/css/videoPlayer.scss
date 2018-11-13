@@ -513,7 +513,13 @@ $wordColor-green:  #22ac38;
             }
         }
         &.btn-vr{
-            width: 46px;
+            position: relative;
+            &:hover .h5player-ctrl-bar-vr-panel{
+                display: block;
+            }
+            &.h5player-ctrl-bar-vr-panel-hide .h5player-ctrl-bar-vr-panel{
+                display: none;
+            }
         }
         &.btn-volume{
             margin-right: 0;
@@ -577,7 +583,8 @@ $wordColor-green:  #22ac38;
             }
         }
         /* 视频清晰度切换盘 */
-        .h5player-ctrl-bar-kbps-panel{
+        .h5player-ctrl-bar-kbps-panel,
+        .h5player-ctrl-bar-vr-panel{
             display: none;
             width: 50px;
             position: absolute;
@@ -589,7 +596,8 @@ $wordColor-green:  #22ac38;
             border-radius: 3px;
             z-index: 10;
             font-size: 12px;
-            .h5player-ctrl-bar-kbps-change{
+            .h5player-ctrl-bar-kbps-change,
+            .h5player-ctrl-bar-vr-change{
                 display: block;
                 line-height: 25px;
                 padding: 0 5px;
@@ -597,7 +605,8 @@ $wordColor-green:  #22ac38;
                 &:hover{
                     background-color: rgba(255,255,255,.2);
                 }
-                &.h5player-ctrl-bar-kbps-current{
+                &.h5player-ctrl-bar-kbps-current,
+                &.h5player-ctrl-bar-vr-current{
                     color: $skin-color-main-default;
 
                     .h5player-skin-elegant &{
@@ -1448,6 +1457,14 @@ $wordColor-green:  #22ac38;
         }
 
     }
+}
+
+/* h5player-vrWrap */
+.h5player-vrWrap{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
 }
 
 .icon-weibo,
