@@ -11,7 +11,7 @@
 ## 功能说明 
 *   点播/直播，支持视频格式{.flv(h264+aac/mp3),.m3u8,.mp4及其他video原生支持的视频格式.ogg/.webm等等(需要浏览器支持)},直播协议HTTP-FLV,HLS,RTMP（需要flash支持，功能很少，只有基本的播放功能）
 *   支持清晰度切换(240P/480P/720P/1080P)，自由配置
-*   支持VR全景播放 - 基于three.js(待优化)
+*   支持VR全景播放 - 基于three.js( 可在普通、全景、半景之间切换 )
 *   支持广告功能（片头、片尾、暂停） - 页面结构优化基本完成
 *   支持弹幕交互功能及弹幕字体大小和颜色设置(弹幕数据来源需要弹幕交互服务支持)
 *   播放器UI定制功能[三款皮肤(优雅、科技、简洁)]
@@ -132,14 +132,14 @@ barrageSetting: {
 
     vrSwitch：是否启用全景(true/false)
     vrControl:  是否展示vrControl切换条(true/false)
-    vrMode: 全景类型(0：全景,1：半景,2：小行星,3：鱼眼)
+    vrMode: 全景类型(0：普通,1：全景,2：半景)
 
 ```javascript
 // 全景相关配置
 vrSetting: {
     vrSwitch: true,  // vr开关 - 默认关闭
     vrControl: true, // vrControl切换条是否展示
-    vrMode: 0  // vrMode(全景类型--0：全景,1：半景,2：小行星,3：鱼眼);
+    vrMode: 0  // vrMode(全景类型--0：普通,1：全景,2：半景);
 }
 ```
 *   definitionSetting: 清晰度设置 {firstRate:null,allRate:[]}
