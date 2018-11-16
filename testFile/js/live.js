@@ -55,9 +55,11 @@ function antSwitch() {
     if (!$this.hasClass('ant-switch-checked')) {
         if (isLive) {
 
+            console.log(liveStreamUrl);
             switch (dataType) {
                 case 'FlvJs':
                     var player = $parentRenderItem.videoPlayer({
+                        // videoUrl: liveStreamUrl.HTTPFLV,
                         liveStreamUrl: liveStreamUrl,
                         isLive: true,
                         barrageSetting: {
@@ -120,10 +122,10 @@ function antSwitch() {
                             // 视频信息 - 名称和ID
                             videoInfo: {
                                 videoName: 'videoTest',
-                                videoId: '1000'
+                                videoId: 1000
                             },
                             // 弹幕服务器地址
-                            serverUrl: 'https://47.75.107.96:3000'
+                            serverUrl: 'http://47.75.107.96:3000'
                         },
                         // 全景相关配置
                         vrSetting: {

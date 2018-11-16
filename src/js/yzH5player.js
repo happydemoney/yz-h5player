@@ -64,8 +64,36 @@ var videoPlayer = function (options, oParent) {
         loadJsCss( 'lib/flv.js' , () => {
             loadJsCss( 'lib/hls.js' , () => {
                 initVideoUrl(); 
+                // 初始化播放器
+                initPlayer();
+
+                //  初始化广告播放器
+                if (options.adSetting.adActive) {
+                    options.adPlayer = new AdPlayer({
+                        playerCurrent: options.playerCurrent,
+                        beginningAdLoaded: options.beginningAdLoaded,
+                        playerContainer: options.playerContainer,
+                        adSetting: options.adSetting
+                    });
+                    options.adPlayer.init();
+                }
             } )   
         } );
+    }else{
+
+        // 初始化播放器
+        initPlayer();
+
+        //  初始化广告播放器
+        if (options.adSetting.adActive) {
+            options.adPlayer = new AdPlayer({
+                playerCurrent: options.playerCurrent,
+                beginningAdLoaded: options.beginningAdLoaded,
+                playerContainer: options.playerContainer,
+                adSetting: options.adSetting
+            });
+            options.adPlayer.init();
+        }
     }
 
     //  * 直播播放时根据用户浏览器兼容情况选好直播流
@@ -86,8 +114,6 @@ var videoPlayer = function (options, oParent) {
             options.videoUrl = options.liveStreamUrl.RTMP;
         }
     }
-    // 初始化播放器
-    initPlayer();
 
     // 根据播放器类型选择不同播放方式
     function initPlayer() {
@@ -119,18 +145,6 @@ var videoPlayer = function (options, oParent) {
             default: break;
         }
     }
-
-    //  初始化广告播放器
-    if (options.adSetting.adActive) {
-        options.adPlayer = new AdPlayer({
-            playerCurrent: options.playerCurrent,
-            beginningAdLoaded: options.beginningAdLoaded,
-            playerContainer: options.playerContainer,
-            adSetting: options.adSetting
-        });
-        options.adPlayer.init();
-    }
-
 
     // HTML5播放器    
     function Html5Player() {
