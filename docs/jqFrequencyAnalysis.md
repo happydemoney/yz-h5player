@@ -15,5 +15,3 @@
 *   dom增删改查( .append (appendTo)/ .remove (.empty())/  / .attr / .find / .parent/.parents / .text / .css / .siblings )
 
 *   dom属性 ( .width() / .offsetLeft /  )
-
-
